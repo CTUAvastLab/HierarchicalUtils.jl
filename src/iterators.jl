@@ -72,7 +72,7 @@ end
 
 processnode(it::LeafIterator, n, s) = processnode(NodeType(n), it, n, s)
 processnode(::LeafNode, it, n, s) = n
-processnode(::InnerNode, it, n, s) = nextstate(it, expand(n, s))
+processnode(_, it, n, s) = nextstate(it, expand(n, s))
 
 function processnode(it::PredicateIterator, n, s)
     expand(n, s)

@@ -8,7 +8,7 @@ function paddedprint(io, s...; color=:default, pad=[])
 end
 
 function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
-    c = NodeType(n) == LeafNode() ? :white : C[1+d%length(C)]
+    c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     gap = " " ^ min(2, length(treerepr(n))-1)
     paddedprint(io, treerepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
     nch = nchildren(n)

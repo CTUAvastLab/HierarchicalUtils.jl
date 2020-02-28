@@ -41,7 +41,22 @@ function _walk(::LeafNode, n, c::AbstractString)
     end
 end
 
-function _walk(::InnerNode, n, c::AbstractString)
+# function _walk(::SingletonNode, n, c::AbstractString)
+#     !isempty(c) || return n
+#     i, nc = decode(c, 1)
+#     0 <= i <= 1 || @error "Invalid index!"
+#     if i == 0
+#         if Set(nc) ⊆ ['0']
+#             return n
+#         else
+#             @error "Invalid index!"
+#         end
+#     end
+#     _walk(children(n), nc)
+# end
+
+function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
+# function _walk(::InnerNode, n, c::AbstractString)
     !isempty(c) || return n
     i, nc = decode(c, nchildren(n))
     0 <= i <= nchildren(n) || @error "Invalid index!"
@@ -54,18 +69,6 @@ function _walk(::InnerNode, n, c::AbstractString)
     end
     _walk(children(n)[i], nc)
 end
-
-list_traversal(n::T, s::String="") where T = list_traversal(NodeType(T), n, s)
-
-function list_traversal(::LeafNode, n, s::String="")
-    [stringify(s)]
-end 
-
-function list_traversal(::InnerNode, n, s::String="")
-    d = children(n)
-    k = length(d)
-    vcat(stringify(s), [list_traversal(d[i], s * encode(i, k)) for i in 1:k]...)
-end 
 
 encode_traversal(t, idxs::Integer...) = stringify(_encode_traversal(t, idxs...))
 
