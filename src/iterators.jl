@@ -20,31 +20,27 @@ struct PredicateIterator{T}
 end
 
 struct ZipIterator
-    its::Tuple
+    ts::Tuple
+    ZipIterator(ts...) = new(ts)
+    ZipIterator(ts) = new(ts)
 end
 
-ZipIterator(its...) = ZipIterator(its)
+struct MultiIterator
+    its::Tuple
+    MultiIterator(ts...) = new(ts)
+    MultiIterator(ts) = new(ts)
+end
 
-const IteratorTypes = Union{NodeIterator, LeafIterator, PredicateIterator, TypeIterator}
+const IteratorTypes = Union{NodeIterator, LeafIterator, PredicateIterator,
+                            TypeIterator, ZipIterator, MultiIterator}
 
 Base.IteratorSize(::IteratorTypes) = SizeUnknown()
 Base.IteratorEltype(::IteratorTypes) = EltypeUnknown()
-Base.IteratorSize(::ZipIterator) = SizeUnknown()
-Base.IteratorEltype(::ZipIterator) = EltypeUnknown()
 
-function iterate(it::ZipIterator) 
-    r = collect(map(iterate, it.its))
-    any(isnothing.(r)) && return nothing
-    return collect(zip(r...))
-end
+defaultstack(it::IteratorTypes) = Any[it.t]
+defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]
 
-function iterate(it::ZipIterator, ss)
-    r = [iterate(i, s) for (i, s) in zip(it.its, ss)]
-    any(isnothing.(r)) && return nothing
-    return collect(zip(r...))
-end
-
-function iterate(it::T, s=Any[it.t]) where T <: IteratorTypes
+function iterate(it::T, s=defaultstack(it)) where T <: IteratorTypes
     r = nextstate(it, s) 
     isnothing(r) && return nothing
     return r, s
@@ -58,7 +54,17 @@ function nextstate(it, s)
     processnode(it, n, s)
 end
 
-# TODO named tuples?
+function nextstate(it::ZipIterator, ss)
+    any(isempty.(ss)) && return nothing
+    ns = pop!.(ss)
+    if !any(isleaf.(ns))
+        for (n, s) in zip(ns, ss)
+            expand(n, s)
+        end
+    end
+    ns
+end
+
 function processnode(it::NodeIterator, n, s)
     expand(n, s)
     n
@@ -78,3 +84,15 @@ function processnode(it::TypeIterator{T, U}, n::T, s) where {T, U}
     n
 end
 processnode(it::TypeIterator, n, s) = nextstate(it, expand(n, s))
+
+function iterate(it::MultiIterator) 
+    r = collect(map(iterate, it.its))
+    any(isnothing.(r)) && return nothing
+    return collect(zip(r...))
+end
+
+function iterate(it::MultiIterator, ss)
+    r = [iterate(i, s) for (i, s) in zip(it.its, ss)]
+    any(isnothing.(r)) && return nothing
+    return collect(zip(r...))
+end
