@@ -59,6 +59,6 @@ include("iterators.jl")
 export NodeIterator, LeafIterator, TypeIterator, PredicateIterator, ZipIterator, MultiIterator
 
 include("maps.jl")
-export treemap, treemap!, leafmap, leafmap!, zipmap, zipmap!
+export treemap, treemap!, leafmap, leafmap!
 
 end # module

@@ -20,25 +20,24 @@ function treemap(f::Function, n)
     _assignchildren(NodeType(nn), nn, ch)
 end
 
-leafmap(f::Function, n) = _leafmap(NodeType(n), f, n)
-
-_leafmap(::LeafNode, f::Function, n) = f(n)
-function _leafmap(_, f::Function, n)
-    ch = fbroadcast(m -> _leafmap(NodeType(m), f, m), children(n))
-    _assignchildren(NodeType(n), n, ch)
-end
-
-# TODO
-zipmap(f::Function, ts...) = zipmap(f, ts)
-function zipmap(f::Function, ts::Tuple)
+treemap(f::Function, ts...) = treemap(f, ts)
+function treemap(f::Function, ts::Tuple)
     n = f(ts)
     # TODO paradox
     if isleaf(n) || any(isleaf.(ts))
         return n
     end
-    ch = fbroadcast(ts -> zipmap(f, ts...), collect(zip(children.(ts)...)))
-    # ch = (ts -> zipmap(f, ts...)).(collect(zip(children.(ts)...)))
+    ch = fbroadcast(ts -> treemap(f, ts...), collect(zip(children.(ts)...)))
+    # ch = (ts -> treemap(f, ts...)).(collect(zip(children.(ts)...)))
     # @eval @set $n.$(childrenfield(n)) = $ch
+    _assignchildren(NodeType(n), n, ch)
+end
+
+leafmap(f::Function, n) = _leafmap(NodeType(n), f, n)
+
+_leafmap(::LeafNode, f::Function, n) = f(n)
+function _leafmap(_, f::Function, n)
+    ch = fbroadcast(m -> _leafmap(NodeType(m), f, m), children(n))
     _assignchildren(NodeType(n), n, ch)
 end
 
@@ -48,14 +47,14 @@ function treemap!(f::Function, n)
     n
 end
 
+treemap!(f::Function, ts...) = treemap!(f, ts)
+function treemap!(f::Function, ts::Tuple)
+    f(ts)
+    any(isleaf.(ts)) && return ts
+    foreach(ch -> treemap!(f, ch), zip(children.(ts)...))
+    ts
+end
+
 leafmap!(f::Function, n) = _leafmap!(NodeType(n), f, n)
 _leafmap!(::LeafNode, f, n) = f(n)
 _leafmap!(_, f, n) = foreach(ch -> _leafmap!(NodeType(ch), f, ch), children(n))
-
-zipmap!(f::Function, ts...) = zipmap!(f, ts)
-function zipmap!(f::Function, ts::Tuple)
-    f(ts)
-    any(isleaf.(ts)) && return ts
-    foreach(ch -> zipmap!(f, ch), zip(children.(ts)...))
-    ts
-end
