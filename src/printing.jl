@@ -11,12 +11,14 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     gap = " " ^ min(2, length(treerepr(n))-1)
     paddedprint(io, treerepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
-    nch = nchildren(n)
-    if nch > 0 && d >= trunc_level
-        println(io)
-        paddedprint(io, gap * '⋮', color=c, pad=p)
-    elseif nch > 0
-        CH, CHS = children(n), childrenstring(n)
+    CH = printchildren(n)
+    if length(CH) > 0
+        if d >= trunc_level
+            println(io)
+            # TODO better align this
+            paddedprint(io, gap * '⋮', color=c, pad=p)
+        else
+        CHS = childrenstring(n)
         for (i, (ch, chs)) in enumerate(zip(CH, CHS))
             println(io)
             paddedprint(io, gap * (i == nch ? "└" : "├") * "── " * chs, color=c, pad=p)

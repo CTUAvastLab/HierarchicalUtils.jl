@@ -30,6 +30,8 @@ children(::LeafNode, _) = []
 # end
 children(_, ::T) where T = @error "Define children(n::$T) to return an iterable of children"
 
+printchildren(n) = children(n)
+
 
 # childsort(x) = x
 # childsort(x::NamedTuple{T}) where T = let ks = tuple(sort(collect(T))...)
