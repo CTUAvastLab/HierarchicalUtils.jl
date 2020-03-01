@@ -12,7 +12,8 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     gap = " " ^ min(2, length(treerepr(n))-1)
     paddedprint(io, treerepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
     CH = printchildren(n)
-    if length(CH) > 0
+    nch = length(CH)
+    if nch > 0
         if d >= trunc_level
             println(io)
             # TODO better align this

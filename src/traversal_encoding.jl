@@ -35,7 +35,7 @@ function _walk(::LeafNode, n, c::AbstractString)
     !isempty(c) || return n
     i, nc = decode(c, length(c))
     if i == 0 && Set(nc) ⊆ ['0']
-        return m
+        return n
     else
         @error "Invalid index!"
     end

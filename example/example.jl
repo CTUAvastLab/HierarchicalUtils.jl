@@ -17,9 +17,6 @@
 # children must be indexable AND sorted?
 
 # TODO 
-# decide sorting children
-# decide leafs encoded as traits or data
-# decide SingletonNode and children being saved not in iterable
 # decide broadcasting, viewing and setindex v Millu
 
 using HierarchicalUtils
@@ -115,14 +112,13 @@ collect(TypeIterator{Operation}(t1))
 collect(TypeIterator{Expression}(t1))
 collect(TypeIterator{Union{Value, Operation}}(t1))
 
-# TODO filter iterator
 pred(n::Operation) = in(n.op, [+, -])
 pred(n::Value) = isodd(n.x)
 pred(n) = true
 collect(PredicateIterator(t1, pred))
 
 # TODO intersect
-# TODO Vracet nothing kdyz skonci nejaky iterator
+# TODO Vracet nothing kdyz skonci nejaky iterator - optional
 collect(ZipIterator(t1, t2))
 t3 = @infix x+y
 collect(ZipIterator(t1, t3))
