@@ -49,16 +49,16 @@ t2 = @infix ((10 / y) + 5) - (8 * z)
 printtree(t1)
 
 # We need to extend some methods
-import HierarchicalUtils: NodeType, treerepr, children, childrenfield
+import HierarchicalUtils: NodeType, noderepr, children, childrenfield
 
 NodeType(::Type{Value}) = HierarchicalUtils.LeafNode()
-treerepr(n::Value) = string(n.x)
+noderepr(n::Value) = string(n.x)
 
-treerepr(n::Variable) = string(n.x)
+noderepr(n::Variable) = string(n.x)
 NodeType(::Type{Variable}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{Operation}) = HierarchicalUtils.InnerNode()
-treerepr(n::Operation) = string(n.op)
+noderepr(n::Operation) = string(n.op)
 childrenfield(::Operation) = :ch
 children(n::Operation) = n.ch
 
@@ -208,16 +208,16 @@ t2
 t3
 
 using Mill
-import HierarchicalUtils: NodeType, treerepr, childrenfield, children, childrenstring
+import HierarchicalUtils: NodeType, noderepr, childrenfield, children, childrenstring
 
 NodeType(::Type{<:Union{ArrayNode, ArrayModel, Missing}}) = LeafNode()
 NodeType(::Type{<:AbstractBagNode}) = SingletonNode()
 NodeType(::Type{<:AbstractNode}) = InnerNode()
-treerepr(::Missing) = "∅"
-treerepr(n::ArrayNode) = "ArrayNode$(size(n.data))"
-treerepr(n::BagNode) = "BagNode with $(length(n.bags)) bag(s)"
-treerepr(n::WeightedBagNode) = "WeightedNode with $(length(n.bags)) bag(s) and weights Σw = $(sum(n.weights))"
-treerepr(n::TreeNode) = "TreeNode"
+noderepr(::Missing) = "∅"
+noderepr(n::ArrayNode) = "ArrayNode$(size(n.data))"
+noderepr(n::BagNode) = "BagNode with $(length(n.bags)) bag(s)"
+noderepr(n::WeightedBagNode) = "WeightedNode with $(length(n.bags)) bag(s) and weights Σw = $(sum(n.weights))"
+noderepr(n::TreeNode) = "TreeNode"
 childrenstring(::AbstractBagNode) = [""]
 children(n::AbstractBagNode) = (n.data,)
 childrenfield(::AbstractBagNode) = :data

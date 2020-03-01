@@ -9,8 +9,8 @@ end
 
 function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
-    gap = " " ^ min(2, length(treerepr(n))-1)
-    paddedprint(io, treerepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
+    gap = " " ^ min(2, length(noderepr(n))-1)
+    paddedprint(io, noderepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
     CH = printchildren(n)
     nch = length(CH)
     if nch > 0

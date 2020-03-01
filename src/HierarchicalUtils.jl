@@ -42,7 +42,7 @@ childrenstring(::InnerNode, n::T) where T = ["" for _ in eachindex(children(n))]
 printchildren(n) = children(n)
 printchildren_sorted(n) = childsort(printchildren(n))
 
-treerepr(::T) where T = @error "Define treerepr(x) for type $T of x for hierarchical printing, empty string is possible"
+noderepr(::T) where T = @error "Define noderepr(x) for type $T of x for hierarchical printing, empty string is possible"
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
@@ -51,7 +51,7 @@ nchildren(::InnerNode, n) = length(children(n))
 
 export NodeType, LeafNode, SingletonNode, InnerNode
 export childrenfield, children, nchildren
-export treerepr, childrenstring, printchildren
+export noderepr, childrenstring, printchildren
 
 include("statistics.jl")
 export nnodes, nleafs
