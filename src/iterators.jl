@@ -19,6 +19,7 @@ struct PredicateIterator{T}
     f::Function
 end
 
+# TODO zip iterator should iterate over intersection of ordered key sets with TreeNode
 struct ZipIterator
     ts::Tuple
     ZipIterator(ts...) = new(ts)
