@@ -19,12 +19,13 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
             # TODO better align this
             paddedprint(io, gap * '⋮', color=c, pad=p)
         else
-        CHS = childrenstring(n)
-        for (i, (ch, chs)) in enumerate(zip(CH, CHS))
-            println(io)
-            paddedprint(io, gap * (i == nch ? "└" : "├") * "── " * chs, color=c, pad=p)
-            ns = gap * (i == nch ? ' ' : '│') * repeat(" ", max(3, 2+length(chs)))
-            _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, trunc_level)
+            CHS = childrenstring(n)
+            for (i, (ch, chs)) in enumerate(zip(CH, CHS))
+                println(io)
+                paddedprint(io, gap * (i == nch ? "└" : "├") * "── " * chs, color=c, pad=p)
+                ns = gap * (i == nch ? ' ' : '│') * repeat(" ", max(3, 2+length(chs)))
+                _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, trunc_level)
+            end
         end
     end
     # paddedprint(io, tail_string(n), color=c)
