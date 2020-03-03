@@ -1,14 +1,15 @@
 using Setfield
 
+# TODO fixme
 fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
 fbroadcast(f::Function, a) = f.(a)
 
-function _assignchildren(::SingletonNode, n, ch)
+function _assignchildren(::SingletonNode, n::T, ch) where T
     # TODO replace with only in 1.4
-    @eval @set $n.$(childrenfield(n)) = $(ch[1])
+    @eval @set $n.$(childrenfield(T)) = $(ch[1])
 end
-function _assignchildren(::InnerNode, n, ch)
-    @eval @set $n.$(childrenfield(n)) = $ch
+function _assignchildren(::InnerNode, n::T, ch) where T
+    @eval @set $n.$(childrenfield(T)) = $ch
 end
 
 function treemap(f::Function, n)
@@ -29,7 +30,7 @@ function treemap(f::Function, ts::Tuple)
     end
     ch = fbroadcast(ts -> treemap(f, ts...), collect(zip(children.(ts)...)))
     # ch = (ts -> treemap(f, ts...)).(collect(zip(children.(ts)...)))
-    # @eval @set $n.$(childrenfield(n)) = $ch
+    # @eval @set $n.$(childrenfield(T)) = $ch
     _assignchildren(NodeType(n), n, ch)
 end
 

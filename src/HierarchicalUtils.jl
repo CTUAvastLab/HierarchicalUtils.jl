@@ -3,6 +3,8 @@
 # tests - unsorted children
 # TODO 
 # rewrite Mill (reflectinmodel -> treemap?)
+# TODO
+# childrenfield for BagNode?
 
 module HierarchicalUtils
 
@@ -19,7 +21,8 @@ isleaf(::LeafNode, _) = true
 isleaf(::SingletonNode, _) = false
 isleaf(::InnerNode, n) = nchildren(n) == 0
 
-childrenfield(::T) where T = @error "Define childrenfield(::$T) to be the field of the structure pointing to the children"
+childrenfields(::Type{T}) where T = @error "Define childrenfields(::$T) to be the iterable over fields of the structure pointing to the children"
+childrenfields(::T) where T = childrenfields(T)
 
 # children are sorted by default
 childsort(x) = x
@@ -50,7 +53,7 @@ nchildren(::SingletonNode, n) = 1
 nchildren(::InnerNode, n) = length(children(n))
 
 export NodeType, LeafNode, SingletonNode, InnerNode
-export childrenfield, children, nchildren
+export childrenfields, children, nchildren
 export noderepr, childrenstring, printchildren
 
 include("statistics.jl")

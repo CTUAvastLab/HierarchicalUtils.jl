@@ -49,8 +49,7 @@ t2 = @infix ((10 / y) + 5) - (8 * z)
 printtree(t1)
 
 # We need to extend some methods
-import HierarchicalUtils: NodeType, noderepr, children, childrenfield
-
+import HierarchicalUtils: NodeType, noderepr, children, childrenfield 
 NodeType(::Type{Value}) = HierarchicalUtils.LeafNode()
 noderepr(n::Value) = string(n.x)
 
@@ -66,7 +65,7 @@ printtree(t1)
 
 # for the sake of demo, generally not really smart
 import Base.show
-Base.show(io::IO, ::MIME"text/plain", n::Expression) = printtree(n)
+Base.show(io::IO, ::MIME"text/plain", n::Expression) = printtree(io, n)
 Base.show(io::IO, n::Operation) = print(io, n.op)
 Base.show(io::IO, n::Expression) = print(io, n.x)
 
@@ -177,12 +176,11 @@ t1_asin = leafmap(asin, t1_assigned)
 t1_asin
 t1_assigned
 
-# zipmap, like ZipIterator stops on first leaf of input trees (or first mapped leaf)
+# treemap, like ZipIterator stops on first leaf of input trees (or first mapped leaf)
 # shouldn't change a structure of a tree to not
-# TODO zipmap with one argument -> treemap?
 t1
 t2
-t3 = zipmap(t1, t2) do (n1, n2)
+t3 = treemap(t1, t2) do (n1, n2)
     # not generally required, specific only to this application
     @assert typeof(n1) == typeof(n2)
     if typeof(n1) == Value
@@ -196,7 +194,7 @@ end
 
 t2
 t3
-zipmap!(t2, t3) do (n1, n2)
+treemap!(t2, t3) do (n1, n2)
     if isa(n1, Value)
         n1.x = -n1.x
     end
