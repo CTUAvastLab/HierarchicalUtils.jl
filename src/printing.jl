@@ -8,7 +8,7 @@ function paddedprint(io, s...; color=:default, pad=[])
 end
 
 printkeys(ch) = ["" for _ in eachindex(ch)]
-printkeys(ch::NamedTuple) = string.(keys(ch))
+printkeys(ch::NamedTuple) = ["$k: " for k in keys(ch)]
 
 function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
