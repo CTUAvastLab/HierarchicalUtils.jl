@@ -63,7 +63,7 @@ function nextstate(it::ZipIterator, ss)
             expand(n, s)
         end
     end
-    ns
+    tuple(ns...)
 end
 
 function processnode(it::NodeIterator, n, s)
