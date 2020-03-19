@@ -56,7 +56,10 @@ NodeType(::Type{Variable}) = HierarchicalUtils.LeafNode()
 NodeType(::Type{Operation}) = HierarchicalUtils.InnerNode()
 noderepr(n::Operation) = string(n.op)
 childrenfield(::Operation) = :ch
-children(n::Operation) = n.ch
+function children(n::Operation)
+    keys = tuple([Symbol("op$i") for i in eachindex(n.ch)]...)
+    NamedTuple{keys}(n.ch)
+end
 
 printtree(t1)
 

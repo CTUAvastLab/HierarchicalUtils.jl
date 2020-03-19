@@ -23,7 +23,7 @@ childrenfields(::T) where T = childrenfields(T)
 
 childsort(x) = x
 function childsort(x::NamedTuple{T}) where T
-    ks = T |> collect |> sort |> tuple
+    ks = tuple(sort(collect(T))...)
     NamedTuple{ks}(x[k] for k in ks)
 end
 
