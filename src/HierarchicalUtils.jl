@@ -1,6 +1,3 @@
-# TODO
-# tests - e.g. zero children inner node
-# tests - unsorted children
 # TODO 
 # rewrite Mill (reflectinmodel -> treemap?)
 # TODO
@@ -24,23 +21,23 @@ isleaf(::InnerNode, n) = nchildren(n) == 0
 childrenfields(::Type{T}) where T = @error "Define childrenfields(::$T) to be the iterable over fields of the structure pointing to the children"
 childrenfields(::T) where T = childrenfields(T)
 
-# children are sorted by default
 childsort(x) = x
-childsort(x::NamedTuple{T}) where T = let ks = tuple(sort(collect(T))...)
+function childsort(x::NamedTuple{T}) where T
+    ks = T |> collect |> sort |> tuple
     NamedTuple{ks}(x[k] for k in ks)
 end
 
 children(n) = children(NodeType(n), n)
 children(::LeafNode, _) = []
-children(_, ::T) where T = @error "Define children(n::$T) to return an iterable of children"
+children(_, ::T) where T = @error "Define children(n::$T) to return NamedTuple, Tuple or Vector of children"
 
 children_sorted(n) = childsort(children(n))
 
 # printing utils
-childrenstring(n) = childrenstring(NodeType(n), n)
-childrenstring(::LeafNode, _) = []
-childrenstring(::SingletonNode, n::T) where T = [""]
-childrenstring(::InnerNode, n::T) where T = ["" for _ in eachindex(children(n))]
+# childrenstring(n) = childrenstring(NodeType(n), n)
+# childrenstring(::LeafNode, _) = []
+# childrenstring(::SingletonNode, n::T) where T = [""]
+# childrenstring(::InnerNode, n::T) where T = ["" for _ in eachindex(children(n))]
 
 printchildren(n) = children(n)
 printchildren_sorted(n) = childsort(printchildren(n))
@@ -54,7 +51,7 @@ nchildren(::InnerNode, n) = length(children(n))
 
 export NodeType, LeafNode, SingletonNode, InnerNode
 export childrenfields, children, nchildren
-export noderepr, childrenstring, printchildren
+export noderepr, printchildren
 
 include("statistics.jl")
 export nnodes, nleafs

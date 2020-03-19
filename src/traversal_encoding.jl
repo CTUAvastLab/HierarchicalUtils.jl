@@ -21,7 +21,7 @@ end
 
 function ith_child(m, i::Integer)
     try
-        return children(m)[i]
+        return children_sorted(m)[i]
     catch
         @error "Invalid index!"
     end
@@ -52,7 +52,7 @@ end
 #             @error "Invalid index!"
 #         end
 #     end
-#     _walk(children(n), nc)
+#     _walk(children_sorted(n), nc)
 # end
 
 function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
@@ -67,7 +67,7 @@ function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
             @error "Invalid index!"
         end
     end
-    _walk(children(n)[i], nc)
+    _walk(children_sorted(n)[i], nc)
 end
 
 encode_traversal(t, idxs::Integer...) = stringify(_encode_traversal(t, idxs...))

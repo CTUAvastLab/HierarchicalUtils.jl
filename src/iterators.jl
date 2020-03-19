@@ -1,6 +1,7 @@
 import Base: iterate
 using Base: SizeUnknown, EltypeUnknown
 
+#TODO rewrite each to accept multiple arguments and act as ZipIterator
 struct NodeIterator{T}
     t::T
 end
@@ -47,7 +48,7 @@ function iterate(it::T, s=defaultstack(it)) where T <: IteratorTypes
     return r, s
 end
 
-expand(n, s) = append!(s, reverse(collect(children(n))))
+expand(n, s) = append!(s, reverse(collect(children_sorted(n))))
 
 function nextstate(it, s)
     isempty(s) && return nothing

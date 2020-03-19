@@ -10,14 +10,11 @@
 # SingletonNodes -> one children saved as a field
 #
 # for leaves, redefine TypeNode(::T)
-# for other nodes, redefine TypeNode(::T), childrenfield, children and OPTIONALLY children string, getindex, setindex and/or Base.show
+# for other nodes, redefine TypeNode(::T), childrenfields, children and OPTIONALLY printchildren and faster nchildren
 #
 # Restrictions:
 # Leaf types and inner types for at least a partial stability
-# children must be indexable AND sorted?
-
-# TODO 
-# decide broadcasting, viewing and setindex v Millu
+# children must be indexable structure - named tuple, tuple or vector
 
 using HierarchicalUtils
 
@@ -206,23 +203,6 @@ t2
 t3
 
 using Mill
-import HierarchicalUtils: NodeType, noderepr, childrenfield, children, childrenstring
-
-NodeType(::Type{<:Union{ArrayNode, ArrayModel, Missing}}) = LeafNode()
-NodeType(::Type{<:AbstractBagNode}) = SingletonNode()
-NodeType(::Type{<:AbstractNode}) = InnerNode()
-noderepr(::Missing) = "∅"
-noderepr(n::ArrayNode) = "ArrayNode$(size(n.data))"
-noderepr(n::BagNode) = "BagNode with $(length(n.bags)) bag(s)"
-noderepr(n::WeightedBagNode) = "WeightedNode with $(length(n.bags)) bag(s) and weights Σw = $(sum(n.weights))"
-noderepr(n::TreeNode) = "TreeNode"
-childrenstring(::AbstractBagNode) = [""]
-children(n::AbstractBagNode) = (n.data,)
-childrenfield(::AbstractBagNode) = :data
-childrenstring(n::TreeNode{<:NamedTuple}) = ["$k: " for k in keys(n.data)]
-childrenstring(n::TreeNode) = ["aa" for k in keys(n.data)]
-children(n::TreeNode) = n.data
-childrenfield(::TreeNode) = :data
 
 ENV["DATADEPS_LOAD_PATH"]="/Users/simon.mandlik/data"
 using SampleLoaders
