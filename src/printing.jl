@@ -15,17 +15,20 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     gap = " " ^ min(2, length(noderepr(n))-1)
     paddedprint(io, noderepr(n) * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
     CH = printchildren_sorted(n)
+    PK = printkeys(CH)
+    l = max(length.(PK))
     nch = length(CH)
+    @show "ahoj"
     if nch > 0
         if d >= trunc_level
             println(io)
-            # TODO better align this
             paddedprint(io, gap * '⋮', color=c, pad=p)
         else
-            for (i, (ch, chs)) in enumerate(zip(CH, printkeys(CH)))
+            for (i, (ch, pk)) in enumerate(zip(CH, PK))
                 println(io)
-                paddedprint(io, gap * (i == nch ? "└" : "├") * "── " * chs, color=c, pad=p)
-                ns = gap * (i == nch ? ' ' : '│') * repeat(" ", max(3, 2+length(chs)))
+                line = (i == nch ? "└" : "├") * "─" ^ (2 + l-length(pk))
+                paddedprint(io, gap * line * " " * pk, color=c, pad=p)
+                ns = gap * (i == nch ? ' ' : '│') * repeat(" ", max(3, 2+l))
                 _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, trunc_level)
             end
         end
