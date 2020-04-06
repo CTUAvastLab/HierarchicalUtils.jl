@@ -77,3 +77,12 @@ function _encode_traversal(t, idxs...)
     n = ith_child(t, idxs[1])
     return encode(idxs[1], nchildren(t)) * _encode_traversal(n, idxs[2:end]...)
 end
+
+list_traversal(n::T, s::String="") where T = _list_traversal(NodeType(T), n, s)
+
+_list_traversal(::LeafNode, n, s::String="") = [stringify(s)]
+function _list_traversal(::Union{InnerNode, SingletonNode}, m, s::String="")
+    d = children_sorted(m)
+    n = length(d)
+    vcat(stringify(s), [list_traversal(d[i], s * encode(i, n)) for i in 1:n]...)
+end 
