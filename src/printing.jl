@@ -33,7 +33,6 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
             end
         end
     end
-    # paddedprint(io, tail_string(n), color=c)
 end
 
 printtree(n; trav=false, trunc_level=Inf) = printtree(stdout, n, trav=trav, trunc_level=trunc_level)

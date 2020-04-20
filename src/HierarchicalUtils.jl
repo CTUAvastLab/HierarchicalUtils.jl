@@ -1,8 +1,3 @@
-# TODO 
-# rewrite Mill (reflectinmodel -> treemap?)
-# TODO
-# childrenfield for BagNode?
-
 module HierarchicalUtils
 
 abstract type NodeType end
@@ -28,21 +23,16 @@ function childsort(x::NamedTuple{T}) where T
 end
 
 children(n) = children(NodeType(n), n)
-children(::LeafNode, _) = []
-children(_, ::T) where T = @error "Define children(n::$T) to return NamedTuple, Tuple or Vector of children"
+children(::LeafNode, _) = ()
+children(_, ::T) where T = @error "Define children(n::$T) to return NamedTuple or Tuple of children"
 
 children_sorted(n) = childsort(children(n))
-
-# printing utils
-# childrenstring(n) = childrenstring(NodeType(n), n)
-# childrenstring(::LeafNode, _) = []
-# childrenstring(::SingletonNode, n::T) where T = [""]
-# childrenstring(::InnerNode, n::T) where T = ["" for _ in eachindex(children(n))]
 
 printchildren(n) = children(n)
 printchildren_sorted(n) = childsort(printchildren(n))
 
-noderepr(::T) where T = @error "Define noderepr(x) for type $T of x for hierarchical printing, empty string is possible"
+# noderepr(::T) where T = @error "Define noderepr(x) for type $T of x for hierarchical printing, empty string is possible"
+noderepr(x) = repr(x)
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
