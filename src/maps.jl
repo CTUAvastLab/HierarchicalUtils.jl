@@ -1,15 +1,14 @@
 using Setfield
 
-# TODO fixme
+# TODO fix error when trying to assign a named tuple to an array
 fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
 fbroadcast(f::Function, a) = f.(a)
 
 function _assignchildren(::SingletonNode, n::T, ch) where T
-    # TODO replace with only in 1.4
-    @eval @set $n.$(childrenfield(T)) = $(ch[1])
+    @eval @set $n.$(only(childrenfields(T))) = $(only(ch))
 end
 function _assignchildren(::InnerNode, n::T, ch) where T
-    @eval @set $n.$(childrenfield(T)) = $ch
+    @eval @set $n.$(only(childrenfields(T))) = $ch
 end
 
 function treemap(f::Function, n)

@@ -10,7 +10,7 @@ end
 printkeys(ch) = ["" for _ in eachindex(ch)]
 printkeys(ch::NamedTuple) = ["$k: " for k in keys(ch)]
 
-function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
+function _printtree(io::IO, n, C, d, p, e, trav, trunc)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     nr = noderepr(n)
     gap = " " ^ min(2, length(nr)-1)
@@ -18,7 +18,7 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
     CH = printchildren_sorted(n)
     nch = length(CH)
     if nch > 0
-        if d >= trunc_level
+        if d >= trunc
             println(io)
             paddedprint(io, gap * '⋮', color=c, pad=p)
         else
@@ -29,11 +29,11 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc_level)
                 line = (i == nch ? "└" : "├") * "─" ^ (2 + l-length(pk))
                 paddedprint(io, gap * line * " " * pk, color=c, pad=p)
                 ns = gap * (i == nch ? ' ' : '│') * " " ^ (3+l)
-                _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, trunc_level)
+                _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, trunc)
             end
         end
     end
 end
 
-printtree(n; trav=false, trunc_level=Inf) = printtree(stdout, n, trav=trav, trunc_level=trunc_level)
-printtree(io::IO, n; trav=false, trunc_level=Inf) = _printtree(io, n, COLORS, 0, [], "", trav, trunc_level)
+printtree(n; trav=false, trunc=Inf) = printtree(stdout, n, trav=trav, trunc=trunc)
+printtree(io::IO, n; trav=false, trunc=Inf) = _printtree(io, n, COLORS, 0, [], "", trav, trunc)

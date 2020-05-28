@@ -46,7 +46,7 @@ t2 = @infix ((10 / y) + 5) - (8 * z)
 printtree(t1)
 
 # We need to extend some methods
-import HierarchicalUtils: NodeType, noderepr, children, childrenfield 
+import HierarchicalUtils: NodeType, noderepr, children, childrenfields
 NodeType(::Type{Value}) = HierarchicalUtils.LeafNode()
 noderepr(n::Value) = string(n.x)
 
@@ -55,7 +55,7 @@ NodeType(::Type{Variable}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{Operation}) = HierarchicalUtils.InnerNode()
 noderepr(n::Operation) = string(n.op)
-childrenfield(::Operation) = :ch
+childrenfields(::Type{Operation}) = (:ch,)
 function children(n::Operation)
     keys = tuple([Symbol("op$i") for i in eachindex(n.ch)]...)
     NamedTuple{keys}(n.ch)
@@ -99,7 +99,7 @@ t_golden[2][2] = t_golden;
 t_golden.ch[2][2] = t_golden;
 
 # TRUNCATION
-printtree(t_golden; trunc_level=10)
+printtree(t_golden; trunc=10)
 
 # iterators return references, so they can be used to slightly mutate objects, however *map functions are better suited
 # altering the tree during iteration may break it
@@ -214,9 +214,9 @@ mb = minibatch(testdata(dataset), 3)
 tm, _ = mb(3)
 
 printtree(tm)
-printtree(tm; trunc_level=0)
-printtree(tm; trunc_level=1)
-printtree(tm; trunc_level=2)
+printtree(tm; trunc=0)
+printtree(tm; trunc=1)
+printtree(tm; trunc=2)
 
 tm = tm.data.network
 
