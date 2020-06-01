@@ -40,7 +40,6 @@ function _children_pairs(ts, complete::Bool)
 end
 
 printchildren(n) = children(n)
-_printchildren_sorted(n) = _childsort(printchildren(n))
 
 # noderepr(::T) where T = @error "Define noderepr(x) for type $T of x for hierarchical printing, empty string is possible"
 noderepr(x) = repr(x)

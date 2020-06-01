@@ -10,12 +10,19 @@ end
 printkeys(ch) = ["" for _ in eachindex(ch)]
 printkeys(ch::NamedTuple) = ["$k: " for k in keys(ch)]
 
+# sort for named tuples only
+_printchildrensort(x) = x
+function _printchildrensort(x::NamedTuple{T}) where T
+    ks = tuple(sort(collect(T))...)
+    NamedTuple{ks}(x[k] for k in ks)
+end
+
 function _printtree(io::IO, n, C, d, p, e, trav, trunc)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     nr = noderepr(n)
     gap = " " ^ min(2, length(nr)-1)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
-    CH = _printchildren_sorted(n)
+    CH = _printchildrensort(printchildren(n))
     nch = length(CH)
     if nch > 0
         if d >= trunc
@@ -36,4 +43,4 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc)
 end
 
 printtree(n; trav=false, trunc=Inf) = printtree(stdout, n, trav=trav, trunc=trunc)
-printtree(io::IO, n; trav=false, trunc=Inf) = _printtree(io, n, COLORS, 0, [], "", trav, trunc)
+printtree(io::IO, n; trav=false, trunc=Inf) = _printtree(io, n, COLORS, 1, [], "", trav, trunc)

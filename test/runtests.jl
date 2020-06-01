@@ -84,9 +84,21 @@ const LINEAR_TREE_2 = SingletonVertex(1,
 
 const LINEAR_TREE_3 = [[[[[[[Leaf(1)]]]]]]]
 
+const COMPLETE_BINARY_TREE = BinaryVertex(1,
+                                          BinaryVertex(2,
+                                                       Leaf(4),
+                                                       Leaf(5)
+                                                      ),
+                                          BinaryVertex(3,
+                                                       Leaf(6),
+                                                       Leaf(7)
+                                                      )
+                                         )
+
 const TEST_TREES = [
                     SINGLE_NODE_1, SINGLE_NODE_2, SINGLE_NODE_3, SINGLE_NODE_4, SINGLE_NODE_5,
-                    LINEAR_TREE_1, LINEAR_TREE_2, LINEAR_TREE_3
+                    LINEAR_TREE_1, LINEAR_TREE_2, LINEAR_TREE_3,
+                    COMPLETE_BINARY_TREE
                    ]
 
 
@@ -95,9 +107,8 @@ const TEST_TREES = [
 # tests - unsorted children
 # test sorting of children a children intersections
 @testset "Simple statistics" begin
-    include("simple_statistics.jl")
+    include("statistics.jl")
 end
-
-# @testset "Printing" begin
-#     include("printing.jl")
-# end
+@testset "Printing" begin
+    include("printing.jl")
+end
