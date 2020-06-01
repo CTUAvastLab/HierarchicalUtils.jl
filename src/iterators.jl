@@ -88,14 +88,15 @@ function iterate(it::MultiIterator, ss)
     any(isnothing.(r)) && return nothing
     return collect(zip(r...))
 end
-defaultstack(it::IteratorTypes) = Any[it.t]
-defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]
 
-function iterate(it::PredicateIterator, s=Stack{Tuple}(it.ts))
-    r = nextstate(it, s) 
-    isnothing(r) && return nothing
-    return r, s
-end
+# defaultstack(it::IteratorTypes) = Any[it.t]
+# defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]
+
+# function iterate(it::PredicateIterator, s=Stack{Tuple}(it.ts))
+#     r = nextstate(it, s) 
+#     isnothing(r) && return nothing
+#     return r, s
+# end
 
 # expand(n, s) = append!(s, reverse(collect(children_sorted(n))))
 
