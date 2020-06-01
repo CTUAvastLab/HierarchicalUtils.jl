@@ -1,30 +1,74 @@
 import Base: iterate
 using Base: SizeUnknown, EltypeUnknown
 
-#TODO rewrite each to accept multiple arguments and act as ZipIterator
-struct NodeIterator{T}
-    t::T
-end
+abstract type AbstractOrder end
+struct PreOrder <: AbstractOrder end
+struct PostOrder <: AbstractOrder end
+struct LevelOrder <: AbstractOrder end
 
-struct LeafIterator{T}
-    t::T
-end
-
-struct TypeIterator{T, U}
-    t::U
-    TypeIterator{T}(t::U) where {T, U} = new{T, U}(t)
-end
-
-struct PredicateIterator{T}
-    t::T
+struct PredicateIterator{T <: Tuple, O <: AbstractOrder}
+    ts::T
     f::Function
+    complete::Bool
+    order::O
+    function PredicateIterator(ts::T, f::Function; complete::Bool=true,
+                                  order::O=PreOrder()) where {T <: Tuple, O <: AbstractOrder}
+        new{T, O}(ts, f, complete, order)
+    end
 end
 
-# TODO zip iterator should iterate over intersection of ordered key sets with TreeNode
-struct ZipIterator
-    ts::Tuple
-    ZipIterator(ts...) = new(ts)
-    ZipIterator(ts) = new(ts)
+_leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
+_node_predicate(ns::Tuple) = true
+
+LeafIterator(ts::T; kwargs...) where T = PredicateIterator(ts, _leaf_predicate; kwargs...)
+NodeIterator(ts::T; kwargs...) where T = PredicateIterator(ts, _node_predicate; kwargs...)
+function TypeIterator(ts::T, t::Type{T}; kwargs...) where {T}
+    PredicateIterator(ts, (ns::Tuple) -> all(n -> isnothing(n) || n isa T, ns); kwargs...)
+end
+
+Base.IteratorSize(::PredicateIterator) = SizeUnknown()
+Base.IteratorEltype(::PredicateIterator) = EltypeUnknown()
+
+# TODO implement with stack?
+function traverse!(o::AbstractOrder, complete::Bool, ts::Tuple, res::Vector)
+    if !all(isnothing.(ts))
+        o isa PreOrder && push!(res, ts)
+        chss = [isnothing(t) ? NamedTuple() : children_sorted(t) for t in ts]
+        l = complete ? maximum(length.(chss)) : minimum(length.(chss))
+        for i in 1:l
+            chs = tuple([i <= length(chss[j]) ? chss[j][i] : nothing for j in eachindex(ts)]...)
+            traverse!(o, complete, chs, res)
+        end
+        o isa PostOrder && push!(res, ts)
+    end
+    res
+end
+
+function traverse!(o::LevelOrder, complete::Bool, ts::Tuple, res::Vector)
+    q = Queue{Any}()
+    enqueue!(q, ts)
+    while !isempty(q)
+        push!(res, first(q))
+        chss = [isnothing(t) ? NamedTuple() : children_sorted(t) for t in first(q)]
+        l = complete ? maximum(length.(chss)) : minimum(length.(chss))
+        for i in 1:l
+            chs = tuple([i <= length(chss[j]) ? chss[j][i] : nothing for j in eachindex(first(q))]...)
+            enqueue!(q, chs)
+        end
+        dequeue!(q)
+    end
+    res
+end
+
+function Base.iterate(it::PredicateIterator)
+    ns = []
+    traverse!(it.order, it.complete, it.ts, ns)
+    return iterate(it, (1, ns))
+end
+
+function Base.iterate(it::PredicateIterator, (i, ns))
+    i <= length(ns) || return nothing
+    return ns[i], (i+1, ns)
 end
 
 struct MultiIterator
@@ -32,60 +76,6 @@ struct MultiIterator
     MultiIterator(ts...) = new(ts)
     MultiIterator(ts) = new(ts)
 end
-
-const IteratorTypes = Union{NodeIterator, LeafIterator, PredicateIterator,
-                            TypeIterator, ZipIterator, MultiIterator}
-
-Base.IteratorSize(::IteratorTypes) = SizeUnknown()
-Base.IteratorEltype(::IteratorTypes) = EltypeUnknown()
-
-defaultstack(it::IteratorTypes) = Any[it.t]
-defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]
-
-function iterate(it::T, s=defaultstack(it)) where T <: IteratorTypes
-    r = nextstate(it, s) 
-    isnothing(r) && return nothing
-    return r, s
-end
-
-expand(n, s) = append!(s, reverse(collect(children_sorted(n))))
-
-function nextstate(it, s)
-    isempty(s) && return nothing
-    n = pop!(s)
-    processnode(it, n, s)
-end
-
-function nextstate(it::ZipIterator, ss)
-    any(isempty.(ss)) && return nothing
-    ns = pop!.(ss)
-    if !any(isleaf.(ns))
-        for (n, s) in zip(ns, ss)
-            expand(n, s)
-        end
-    end
-    tuple(ns...)
-end
-
-function processnode(it::NodeIterator, n, s)
-    expand(n, s)
-    n
-end
-
-processnode(it::LeafIterator, n, s) = processnode(NodeType(n), it, n, s)
-processnode(::LeafNode, it, n, s) = n
-processnode(_, it, n, s) = nextstate(it, expand(n, s))
-
-function processnode(it::PredicateIterator, n, s)
-    expand(n, s)
-    it.f(n) ? n : nextstate(it, s)
-end
-
-function processnode(it::TypeIterator{T, U}, n::T, s) where {T, U}
-    expand(n, s)
-    n
-end
-processnode(it::TypeIterator, n, s) = nextstate(it, expand(n, s))
 
 function iterate(it::MultiIterator) 
     r = collect(map(iterate, it.its))
@@ -98,3 +88,51 @@ function iterate(it::MultiIterator, ss)
     any(isnothing.(r)) && return nothing
     return collect(zip(r...))
 end
+defaultstack(it::IteratorTypes) = Any[it.t]
+defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]
+
+function iterate(it::PredicateIterator, s=Stack{Tuple}(it.ts))
+    r = nextstate(it, s) 
+    isnothing(r) && return nothing
+    return r, s
+end
+
+# expand(n, s) = append!(s, reverse(collect(children_sorted(n))))
+
+# function nextstate(it, s)
+#     isempty(s) && return nothing
+#     n = pop!(s)
+#     processnode(it, n, s)
+# end
+
+# function nextstate(it::ZipIterator, ss)
+#     any(isempty.(ss)) && return nothing
+#     ns = pop!.(ss)
+#     if !any(isleaf.(ns))
+#         for (n, s) in zip(ns, ss)
+#             expand(n, s)
+#         end
+#     end
+#     tuple(ns...)
+# end
+
+# function processnode(it::NodeIterator, n, s)
+#     expand(n, s)
+#     n
+# end
+
+# processnode(it::LeafIterator, n, s) = processnode(NodeType(n), it, n, s)
+# processnode(::LeafNode, it, n, s) = n
+# processnode(_, it, n, s) = nextstate(it, expand(n, s))
+
+# function processnode(it::PredicateIterator, n, s)
+#     expand(n, s)
+#     it.f(n) ? n : nextstate(it, s)
+# end
+
+# function processnode(it::TypeIterator{T, U}, n::T, s) where {T, U}
+#     expand(n, s)
+#     n
+# end
+# processnode(it::TypeIterator, n, s) = nextstate(it, expand(n, s))
+
