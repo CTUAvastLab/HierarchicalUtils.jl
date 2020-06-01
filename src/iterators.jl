@@ -6,24 +6,29 @@ struct PreOrder <: AbstractOrder end
 struct PostOrder <: AbstractOrder end
 struct LevelOrder <: AbstractOrder end
 
-struct PredicateIterator{T <: Tuple, O <: AbstractOrder}
+struct PredicateIterator{T, O <: AbstractOrder}
     ts::T
     f::Function
     complete::Bool
     order::O
     function PredicateIterator(ts::T, f::Function; complete::Bool=true,
-                                  order::O=PreOrder()) where {T <: Tuple, O <: AbstractOrder}
+                                  order::O=PreOrder()) where {T, O <: AbstractOrder}
         new{T, O}(ts, f, complete, order)
     end
 end
 
 _leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
+_leaf_predicate(n) = isnothing(n) || isleaf(n)
 _node_predicate(ns::Tuple) = true
+_node_predicate(n) = true
 
-LeafIterator(ts::T; kwargs...) where T = PredicateIterator(ts, _leaf_predicate; kwargs...)
-NodeIterator(ts::T; kwargs...) where T = PredicateIterator(ts, _node_predicate; kwargs...)
-function TypeIterator(ts::T, t::Type{T}; kwargs...) where {T}
+LeafIterator(ts; kwargs...) = PredicateIterator(ts, _leaf_predicate; kwargs...)
+NodeIterator(ts; kwargs...) = PredicateIterator(ts, _node_predicate; kwargs...)
+function TypeIterator(ts::Tuple, t::Type{T}; kwargs...) where T
     PredicateIterator(ts, (ns::Tuple) -> all(n -> isnothing(n) || n isa T, ns); kwargs...)
+end
+function TypeIterator(ts, t::Type{T}; kwargs...) where T
+    PredicateIterator(ts, n -> isnothing(n) || n isa T; kwargs...)
 end
 
 Base.IteratorSize(::PredicateIterator) = SizeUnknown()
@@ -60,16 +65,28 @@ function traverse!(o::LevelOrder, complete::Bool, ts::Tuple, res::Vector)
     res
 end
 
-function Base.iterate(it::PredicateIterator)
+function Base.iterate(it::PredicateIterator{<:Tuple})
     ns = []
     traverse!(it.order, it.complete, it.ts, ns)
     return iterate(it, (1, ns))
 end
 
-function Base.iterate(it::PredicateIterator, (i, ns))
+function Base.iterate(it::PredicateIterator)
+    ns = []
+    traverse!(it.order, it.complete, tuple(it.ts), ns)
+    return iterate(it, (1, ns))
+end
+
+function Base.iterate(it::PredicateIterator{<:Tuple}, (i, ns))
     i <= length(ns) || return nothing
     return ns[i], (i+1, ns)
 end
+
+function Base.iterate(it::PredicateIterator, (i, ns))
+    i <= length(ns) || return nothing
+    return only(ns[i]), (i+1, ns)
+end
+
 
 struct MultiIterator
     its::Tuple
