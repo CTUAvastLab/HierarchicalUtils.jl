@@ -24,3 +24,15 @@ isleaf(t) = false
         @test nleafs(n) == filter(isleaf, NodeIterator(n) |> collect) |> length
     end
 end
+
+@testset "nodes with zero children" begin
+    @test nleafs(NTVertex(1, NamedTuple())) == 1
+    @test nleafs(BinaryVertex(1,
+                              VectorVertex(2, AbstractVertex[]),
+                              Leaf(3))
+                ) == 2
+    @test nleafs(BinaryVertex(1,
+                              VectorVertex(2, AbstractVertex[]),
+                              NTVertex(3, (; a=Leaf(4))))
+                ) == 2
+end

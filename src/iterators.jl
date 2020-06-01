@@ -38,10 +38,7 @@ Base.IteratorEltype(::PredicateIterator) = EltypeUnknown()
 function traverse!(o::AbstractOrder, complete::Bool, ts::Tuple, res::Vector)
     if !all(isnothing.(ts))
         o isa PreOrder && push!(res, ts)
-        chss = [isnothing(t) ? NamedTuple() : children_sorted(t) for t in ts]
-        l = complete ? maximum(length.(chss)) : minimum(length.(chss))
-        for i in 1:l
-            chs = tuple([i <= length(chss[j]) ? chss[j][i] : nothing for j in eachindex(ts)]...)
+        for chs in _children_pairs(ts, complete)
             traverse!(o, complete, chs, res)
         end
         o isa PostOrder && push!(res, ts)
@@ -54,10 +51,7 @@ function traverse!(o::LevelOrder, complete::Bool, ts::Tuple, res::Vector)
     enqueue!(q, ts)
     while !isempty(q)
         push!(res, first(q))
-        chss = [isnothing(t) ? NamedTuple() : children_sorted(t) for t in first(q)]
-        l = complete ? maximum(length.(chss)) : minimum(length.(chss))
-        for i in 1:l
-            chs = tuple([i <= length(chss[j]) ? chss[j][i] : nothing for j in eachindex(first(q))]...)
+        for chs in _children_pairs(ts, complete)
             enqueue!(q, chs)
         end
         dequeue!(q)
@@ -78,11 +72,17 @@ function Base.iterate(it::PredicateIterator)
 end
 
 function Base.iterate(it::PredicateIterator{<:Tuple}, (i, ns))
+    while i <= length(ns) && !it.f(ns[i])
+        i += 1
+    end
     i <= length(ns) || return nothing
     return ns[i], (i+1, ns)
 end
 
 function Base.iterate(it::PredicateIterator, (i, ns))
+    while i <= length(ns) && !it.f(ns[i])
+        i += 1
+    end
     i <= length(ns) || return nothing
     return only(ns[i]), (i+1, ns)
 end

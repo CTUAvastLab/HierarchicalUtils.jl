@@ -1,10 +1,5 @@
 using Test
 using HierarchicalUtils
-using Combinatorics
-# TODO
-# tests - e.g. zero children inner node
-# tests - unsorted children
-# test sorting of children a children intersections
 
 # definitions of all trees needed
 abstract type AbstractVertex end
@@ -47,6 +42,7 @@ NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
 children(t::SingletonVertex) = (t.ch,)
 
 noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
+Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
 
 # TODO
 # childrenfields
@@ -62,18 +58,22 @@ const LINEAR_TREE1 = VectorVertex(1,[
                             ])
 
 const LINEAR_TREE2 = SingletonVertex(1, 
-                             SingletonVertex(2, 
-                                          a=VectorVertex(3, [
-                                                            NTVertex(4, NamedTuple())
-                                                           ])
-                                         )
-                            )
+                                     SingletonVertex(2, 
+                                                     VectorVertex(3, [
+                                                                      NTVertex(4, NamedTuple())
+                                                                     ])
+                                                    )
+                                    )
 
 const TEST_TREES = [
     LINEAR_TREE1, LINEAR_TREE2
                    ]
 
 
+# TODO
+# tests - e.g. zero children inner node
+# tests - unsorted children
+# test sorting of children a children intersections
 @testset "Simple statistics" begin
     include("simple_statistics.jl")
 end

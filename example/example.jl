@@ -28,6 +28,7 @@ mutable struct Variable <: Expression
     x::Symbol
 end
 
+# binary
 mutable struct Operation <: Expression
     op::Function
     ch::Vector{Expression}
@@ -132,7 +133,7 @@ collect(MultiIterator(NodeIterator(t1), LeafIterator(t1)))
 t1
 assignment = Dict(:x => 1, :y => 2)
 t1_assigned = treemap(t1) do n
-    if isa(n, Variable)
+    if n isa Variable
         return Value(assignment[n.x])
     else
         # if returning the same node, be careful about mutating
@@ -141,10 +142,10 @@ t1_assigned = treemap(t1) do n
 end
 
 t1_assigned = treemap(t1) do n
-    if isa(n, Operation) && n.op == *
+    if n isa Operation && n.op == *
         # new children will get mapped as well
         return @infix x + y
-    elseif isa(n, Variable)
+    elseif n isa Variable
         return Value(assignment[n.x])
     else
         return n
@@ -155,7 +156,7 @@ end
 # treemap is useful when types inherently change (but slower!), treemap! is better for cosmetic changes
 t1_copy = deepcopy(t1)
 treemap!(t1_copy) do n
-    if isa(n, Operation)
+    if n isa Operation
         n.op = +
     else
         return n
@@ -183,9 +184,9 @@ t2
 t3 = treemap(t1, t2) do (n1, n2)
     # not generally required, specific only to this application
     @assert typeof(n1) == typeof(n2)
-    if typeof(n1) == Value
+    if n1 isa Value
         return Value(n1.x + n2.x)
-    elseif typeof(n1) == Variable
+    elseif n1 isa Variable
         return n1
     else
         return n2
@@ -195,10 +196,10 @@ end
 t2
 t3
 treemap!(t2, t3) do (n1, n2)
-    if isa(n1, Value)
+    if n1 isa Value
         n1.x = -n1.x
     end
-    if typeof(n2) == Variable
+    if n2 isa Variable
         n2.x = :a
     end
 end
@@ -249,7 +250,7 @@ collect(MultiIterator(NodeIterator(tm), NodeIterator(tm2)))
 
 tm
 tm3 = treemap(tm) do n
-    if isa(n, TreeNode) && length(n.data) < 8
+    if n isa TreeNode && length(n.data) < 8
         # different type - very powerful, but potentially very slow
         return ArrayNode((randn(3, 3)))
     else
@@ -259,7 +260,7 @@ end
 
 tm
 tm3 = treemap(tm) do n
-    if isa(n, TreeNode) && length(n.data) < 8
+    if n isa TreeNode && length(n.data) < 8
         return ArrayNode((randn(3, 3)))
     else
         return n

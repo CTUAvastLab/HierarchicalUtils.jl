@@ -1,5 +1,4 @@
-using Setfield
-
+# TODO types of traversal?
 # TODO fix error when trying to assign a named tuple to an array
 fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
 fbroadcast(f::Function, a) = f.(a)

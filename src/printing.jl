@@ -15,7 +15,7 @@ function _printtree(io::IO, n, C, d, p, e, trav, trunc)
     nr = noderepr(n)
     gap = " " ^ min(2, length(nr)-1)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
-    CH = printchildren_sorted(n)
+    CH = _printchildren_sorted(n)
     nch = length(CH)
     if nch > 0
         if d >= trunc
