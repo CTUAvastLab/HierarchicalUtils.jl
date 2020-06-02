@@ -26,6 +26,7 @@ children(_, ::T) where T = @error "Define children(n::$T) to return a NamedTuple
 function _childsort(x::Tuple)
     ks = tuple((Symbol('a' + i - 1) for i in eachindex(x))...)
     NamedTuple{ks}(x)
+    x
 end
 function _childsort(x::NamedTuple{T}) where T
     ks = tuple(sort(collect(T))...)
@@ -64,6 +65,7 @@ export printtree
 
 include("iterators.jl")
 export NodeIterator, LeafIterator, TypeIterator, PredicateIterator, MultiIterator
+export PreOrder, PostOrder, LevelOrder
 export traverse!
 
 # TODO

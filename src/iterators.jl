@@ -17,24 +17,35 @@ struct PredicateIterator{T, O <: AbstractOrder}
     end
 end
 
-_leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
-_leaf_predicate(n) = isnothing(n) || isleaf(n)
+# _leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
+# _leaf_predicate(n) = isnothing(n) || isleaf(n)
+_leaf_predicate(ns::Tuple) = all(isleaf(n), ns)
+_leaf_predicate(n) = isleaf(n)
 _node_predicate(ns::Tuple) = true
 _node_predicate(n) = true
+function _type_predicate_object(ts::Tuple, t::Tuple{Vararg{Type}})
+    @assert length(ts) == length(t)
+    # (ns::Tuple) -> all([isnothing(ns[i]) || ns[i] isa t[i] for i in eachindex(ts)])
+    (ns::Tuple) -> all([ns[i] isa t[i] for i in eachindex(ts)])
+end
+function _type_predicate_object(ts::Tuple, t::Type{T}) where T
+    # (ns::Tuple) -> all(n -> isnothing(n) || n isa T, ns)
+    (ns::Tuple) -> all(n -> n isa T, ns)
+end
+# _type_predicate_object(ts, t::Type{T}) where T = n -> isnothing(n) || n isa T
+_type_predicate_object(ts, t::Type{T}) where T = n -> n isa T
 
 LeafIterator(ts; kwargs...) = PredicateIterator(ts, _leaf_predicate; kwargs...)
 NodeIterator(ts; kwargs...) = PredicateIterator(ts, _node_predicate; kwargs...)
-function TypeIterator(ts::Tuple, t::Type{T}; kwargs...) where T
-    PredicateIterator(ts, (ns::Tuple) -> all(n -> isnothing(n) || n isa T, ns); kwargs...)
-end
-function TypeIterator(ts, t::Type{T}; kwargs...) where T
-    PredicateIterator(ts, n -> isnothing(n) || n isa T; kwargs...)
+function TypeIterator(ts, t::Union{Type, Tuple{Vararg{Type}}}; kwargs...)
+    PredicateIterator(ts, _type_predicate_object(ts, t); kwargs...)
 end
 
 Base.IteratorSize(::PredicateIterator) = SizeUnknown()
 Base.IteratorEltype(::PredicateIterator) = EltypeUnknown()
 
 # TODO implement with stack?
+# TODO maybe implement faster version with types
 function traverse!(o::AbstractOrder, complete::Bool, ts::Tuple, res::Vector)
     if !all(isnothing.(ts))
         o isa PreOrder && push!(res, ts)
@@ -51,13 +62,15 @@ function traverse!(o::LevelOrder, complete::Bool, ts::Tuple, res::Vector)
     enqueue!(q, ts)
     while !isempty(q)
         push!(res, first(q))
-        for chs in _children_pairs(ts, complete)
+        for chs in _children_pairs(first(q), complete)
             enqueue!(q, chs)
         end
         dequeue!(q)
     end
     res
 end
+
+Base.iterate(it::PredicateIterator{Tuple{}}) = nothing
 
 function Base.iterate(it::PredicateIterator{<:Tuple})
     ns = []
@@ -80,7 +93,7 @@ function Base.iterate(it::PredicateIterator{<:Tuple}, (i, ns))
 end
 
 function Base.iterate(it::PredicateIterator, (i, ns))
-    while i <= length(ns) && !it.f(ns[i])
+    while i <= length(ns) && !it.f(only(ns[i]))
         i += 1
     end
     i <= length(ns) || return nothing
@@ -88,23 +101,24 @@ function Base.iterate(it::PredicateIterator, (i, ns))
 end
 
 
-struct MultiIterator
-    its::Tuple
-    MultiIterator(ts...) = new(ts)
-    MultiIterator(ts) = new(ts)
-end
+# TODO implement MultiIterator, so that nothing below doesn't clash with complete iterators
+# struct MultiIterator
+#     its::Tuple
+#     MultiIterator(ts...) = new(ts)
+#     MultiIterator(ts) = new(ts)
+# end
 
-function iterate(it::MultiIterator) 
-    r = collect(map(iterate, it.its))
-    any(isnothing.(r)) && return nothing
-    return collect(zip(r...))
-end
+# function iterate(it::MultiIterator) 
+#     r = collect(map(iterate, it.its))
+#     any(isnothing.(r)) && return nothing
+#     return collect(zip(r...))
+# end
 
-function iterate(it::MultiIterator, ss)
-    r = [iterate(i, s) for (i, s) in zip(it.its, ss)]
-    any(isnothing.(r)) && return nothing
-    return collect(zip(r...))
-end
+# function iterate(it::MultiIterator, ss)
+#     r = [iterate(i, s) for (i, s) in zip(it.its, ss)]
+#     any(isnothing.(r)) && return nothing
+#     return collect(zip(r...))
+# end
 
 # defaultstack(it::IteratorTypes) = Any[it.t]
 # defaultstack(it::ZipIterator) = [Any[t] for t in it.ts]

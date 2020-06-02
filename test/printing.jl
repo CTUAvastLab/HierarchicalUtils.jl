@@ -39,7 +39,7 @@ Dict of
 end
 
 @testset "printtree traversal encoding" begin
-    t = COMPLETE_BINARY_TREE
+    t = COMPLETE_BINARY_TREE_1
     buf = IOBuffer()
     printtree(buf, t)
     @test String(take!(buf)) ===
