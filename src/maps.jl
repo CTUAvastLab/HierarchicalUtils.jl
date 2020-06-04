@@ -43,13 +43,13 @@ function _treemap(f::Function, ts::Tuple, complete::Bool, order::LevelOrder)
     @error "Treemaps using LevelOrder() are not supported yet"
 end
 
-function treemap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PreOrder())
+function treemap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PostOrder())
     foreach(f, NodeIterator(ts; order=order, complete=complete))
 end
-function leafmap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PreOrder())
+function leafmap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PostOrder())
     foreach(f, LeafIterator(ts; order=order, complete=complete))
 end
 function typemap!(f::Function, ts, t::Union{Type, Tuple{Vararg{Type}}}; complete::Bool=false,
-                  order::AbstractOrder=PreOrder())
+                  order::AbstractOrder=PostOrder())
     foreach(f, TypeIterator(ts, t; order=order, complete=complete))
 end
