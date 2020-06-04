@@ -47,7 +47,7 @@ t2 = @infix ((10 / y) + 5) - (8 * z)
 printtree(t1)
 
 # We need to extend some methods
-import HierarchicalUtils: NodeType, noderepr, children, childrenfields
+import HierarchicalUtils: NodeType, noderepr, children, set_children
 NodeType(::Type{Value}) = HierarchicalUtils.LeafNode()
 noderepr(n::Value) = string(n.x)
 
@@ -56,7 +56,7 @@ NodeType(::Type{Variable}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{Operation}) = HierarchicalUtils.InnerNode()
 noderepr(n::Operation) = string(n.op)
-childrenfields(::Type{Operation}) = (:ch,)
+set_children(n::Operation, chs) = Operation(n.op, collect(chs))
 function children(n::Operation)
     keys = tuple([Symbol("op$i") for i in eachindex(n.ch)]...)
     NamedTuple{keys}(n.ch)
@@ -117,8 +117,6 @@ pred(n::Value) = isodd(n.x)
 pred(n) = true
 collect(PredicateIterator(t1, pred))
 
-# TODO intersect
-# TODO Vracet nothing kdyz skonci nejaky iterator - optional
 collect(NodeIterator((t1, t2)))
 t3 = @infix x+y
 collect(NodeIterator((t1, t3); complete=false))
@@ -127,24 +125,27 @@ collect(NodeIterator((t1, t3); complete=true))
 # collect(MultiIterator(NodeIterator(t1), NodeIterator(t1)))
 # collect(MultiIterator(NodeIterator(t1), LeafIterator(t1)))
 
-# TODO postorder for evaluation
-# preorder walk, once a leaf is returned -> stop, mapping applied to children of a mapped node!
-# change of type is ok
-# Note: for dispatching on types do not use inline definition!
-# be careful about changing children
 t1
 assignment = Dict(:x => 1, :y => 2)
-t1_assigned = treemap(t1) do (n, _)
-    @show n
+t1_assigned = treemap(t1) do n, chs
     if n isa Variable
         return Value(assignment[n.x])
+    elseif n isa Operation
+        return set_children(n, chs)
     else
-        # if returning the same node, be careful about mutating
         return n
     end
 end
 
-t1_assigned = treemap(t1) do n
+t1_assigned = treemap(t1; order=PreOrder()) do n, _
+    if n isa Variable
+        return Value(assignment[n.x])
+    else
+        return n
+    end
+end
+
+t1_assigned = treemap(t1; order=PreOrder()) do n, _
     if n isa Operation && n.op == *
         # new children will get mapped as well
         return @infix x + y

@@ -10,31 +10,29 @@ end
 
 # treemap(f::Function, t; kwargs...) = treemap(f, (t,); kwargs...)
 treemap(f::Function, t; kwargs...) = treemap((t, chs) -> f(only(t), chs), (t,); kwargs...)
-# treemap(f::Function, t; kwargs...) = treemap((t, chs) -> begin @show t, chs
+treemap(f::Function, ts...; kwargs...) = treemap(f, ts; kwargs...)
+# treemap(f::Function, t; kwargs...) = treemap((t, chs) -> begin @show only(t), chs
 #                                                  f(only(t), chs)
 #                                                 end, (t,); kwargs...)
-function treemap(f::Function, ts::Tuple; complete::Bool=true, order::AbstractOrder=PostOrder())
+function treemap(f::Function, ts::Tuple; complete::Bool=false, order::AbstractOrder=PostOrder())
     _treemap(f, ts, complete, order)
 end
 
-# TODO finish preorder
+# TODO finish preorder, think abot how both maps should behave in case of complete traversals
 # maybe annotate about named tuples? Pomoci traits?
 function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
-    @show ts
-    n = f(ts, _children_sorted.(ts))
-    @show n
-    isleaf(n) && return n
-    nchs = children(n)
-    @show nchs
-    chs = _children_pairs_keys(ts, complete)
-    @show chs
-    @assert keys(nchs) ⊆ keys(chs)
-    @show chs
-    mchs = fbroadcast(ts -> _treemap(f, ts, complete, order), select_keys(chs, nchs))
-    @show mchs
-    @show typeof(n)
-    @show set_children(n, mchs)
+    @error "Treemaps using PreOrder() are not supported yet"
 end
+# function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
+#     n = f(ts, _children_sorted.(ts))
+#     isleaf(n) && return n
+#     nchs = children(n)
+#     chs = _children_pairs_keys(ts, complete)
+#     @show keys(nchs), keys(chs)
+#     @assert keys(nchs) ⊆ keys(chs)
+#     mchs = fbroadcast(ts -> _treemap(f, ts, complete, order), select_keys(chs, nchs))
+#     set_children(n, mchs)
+# end
 
 function _treemap(f::Function, ts::Tuple, complete::Bool, order::PostOrder)
     chs = fbroadcast(ts -> _treemap(f, ts, complete, order), _children_pairs(ts, complete))
