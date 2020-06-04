@@ -1,59 +1,57 @@
-# TODO types of traversal?
-# TODO fix error when trying to assign a named tuple to an array
+# # TODO fix error when trying to assign a named tuple to an array
 fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
 fbroadcast(f::Function, a) = f.(a)
 
-function _assignchildren(::SingletonNode, n::T, ch) where T
-    @eval @set $n.$(only(childrenfields(T))) = $(only(ch))
-end
-function _assignchildren(::InnerNode, n::T, ch) where T
-    @eval @set $n.$(only(childrenfields(T))) = $ch
-end
-
-function treemap(f::Function, n)
-    nn = f(n)
-    if isleaf(nn)
-        return nn
-    end
-    ch = fbroadcast(m -> treemap(f, m), children_sorted(nn))
-    _assignchildren(NodeType(nn), nn, ch)
+select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
+select_keys(x::Tuple, y::Tuple) = x[eachindex(y)]
+function select_keys(x::NamedTuple, y::NamedTuple)
+    NamedTuple{keys(y)}(tuple((x[k] for k in keys(y))...))
 end
 
-treemap(f::Function, ts...) = treemap(f, ts)
-function treemap(f::Function, ts::Tuple)
-    n = f(ts)
-    # TODO paradox
-    if isleaf(n) || any(isleaf.(ts))
-        return n
-    end
-    ch = fbroadcast(ts -> treemap(f, ts...), collect(zip(children_sorted.(ts)...)))
-    # ch = (ts -> treemap(f, ts...)).(collect(zip(children.(ts)...)))
-    # @eval @set $n.$(childrenfield(T)) = $ch
-    _assignchildren(NodeType(n), n, ch)
+# treemap(f::Function, t; kwargs...) = treemap(f, (t,); kwargs...)
+treemap(f::Function, t; kwargs...) = treemap((t, chs) -> f(only(t), chs), (t,); kwargs...)
+# treemap(f::Function, t; kwargs...) = treemap((t, chs) -> begin @show t, chs
+#                                                  f(only(t), chs)
+#                                                 end, (t,); kwargs...)
+function treemap(f::Function, ts::Tuple; complete::Bool=true, order::AbstractOrder=PostOrder())
+    _treemap(f, ts, complete, order)
 end
 
-leafmap(f::Function, n) = _leafmap(NodeType(n), f, n)
-
-_leafmap(::LeafNode, f::Function, n) = f(n)
-function _leafmap(_, f::Function, n)
-    ch = fbroadcast(m -> _leafmap(NodeType(m), f, m), children_sorted(n))
-    _assignchildren(NodeType(n), n, ch)
+# TODO finish preorder
+# maybe annotate about named tuples? Pomoci traits?
+function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
+    @show ts
+    n = f(ts, _children_sorted.(ts))
+    @show n
+    isleaf(n) && return n
+    nchs = children(n)
+    @show nchs
+    chs = _children_pairs_keys(ts, complete)
+    @show chs
+    @assert keys(nchs) ⊆ keys(chs)
+    @show chs
+    mchs = fbroadcast(ts -> _treemap(f, ts, complete, order), select_keys(chs, nchs))
+    @show mchs
+    @show typeof(n)
+    @show set_children(n, mchs)
 end
 
-function treemap!(f::Function, n)
-    f(n)
-    foreach(ch -> treemap!(f, ch), children_sorted(n))
-    n
+function _treemap(f::Function, ts::Tuple, complete::Bool, order::PostOrder)
+    chs = fbroadcast(ts -> _treemap(f, ts, complete, order), _children_pairs(ts, complete))
+    return f(ts, chs)
 end
 
-treemap!(f::Function, ts...) = treemap!(f, ts)
-function treemap!(f::Function, ts::Tuple)
-    f(ts)
-    any(isleaf.(ts)) && return ts
-    foreach(ch -> treemap!(f, ch), zip(children_sorted.(ts)...))
-    ts
+function _treemap(f::Function, ts::Tuple, complete::Bool, order::LevelOrder)
+    @error "Treemaps using LevelOrder() are not supported yet"
 end
 
-leafmap!(f::Function, n) = _leafmap!(NodeType(n), f, n)
-_leafmap!(::LeafNode, f, n) = f(n)
-_leafmap!(_, f, n) = foreach(ch -> _leafmap!(NodeType(ch), f, ch), children_sorted(n))
+function treemap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PreOrder())
+    foreach(f, NodeIterator(ts; order=order, complete=complete))
+end
+function leafmap!(f::Function, ts; complete::Bool=false, order::AbstractOrder=PreOrder())
+    foreach(f, LeafIterator(ts; order=order, complete=complete))
+end
+function typemap!(f::Function, ts, t::Union{Type, Tuple{Vararg{Type}}}; complete::Bool=false,
+                  order::AbstractOrder=PreOrder())
+    foreach(f, TypeIterator(ts, t; order=order, complete=complete))
+end

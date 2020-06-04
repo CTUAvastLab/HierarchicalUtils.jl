@@ -17,22 +17,17 @@ struct PredicateIterator{T, O <: AbstractOrder}
     end
 end
 
-# _leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
-# _leaf_predicate(n) = isnothing(n) || isleaf(n)
 _leaf_predicate(ns::Tuple) = all(isleaf(n), ns)
 _leaf_predicate(n) = isleaf(n)
 _node_predicate(ns::Tuple) = true
 _node_predicate(n) = true
 function _type_predicate_object(ts::Tuple, t::Tuple{Vararg{Type}})
     @assert length(ts) == length(t)
-    # (ns::Tuple) -> all([isnothing(ns[i]) || ns[i] isa t[i] for i in eachindex(ts)])
     (ns::Tuple) -> all([ns[i] isa t[i] for i in eachindex(ts)])
 end
 function _type_predicate_object(ts::Tuple, t::Type{T}) where T
-    # (ns::Tuple) -> all(n -> isnothing(n) || n isa T, ns)
     (ns::Tuple) -> all(n -> n isa T, ns)
 end
-# _type_predicate_object(ts, t::Type{T}) where T = n -> isnothing(n) || n isa T
 _type_predicate_object(ts, t::Type{T}) where T = n -> n isa T
 
 LeafIterator(ts; kwargs...) = PredicateIterator(ts, _leaf_predicate; kwargs...)
@@ -129,7 +124,7 @@ end
 #     return r, s
 # end
 
-# expand(n, s) = append!(s, reverse(collect(children_sorted(n))))
+# expand(n, s) = append!(s, reverse(collect(_children_sorted(n))))
 
 # function nextstate(it, s)
 #     isempty(s) && return nothing

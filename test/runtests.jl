@@ -6,23 +6,23 @@ using Combinatorics
 # definitions of all trees needed
 abstract type AbstractVertex end
 
-struct Leaf <: AbstractVertex
+mutable struct Leaf <: AbstractVertex
     n::Int64
 end
-struct VectorVertex{T <: AbstractVertex} <: AbstractVertex
+mutable struct VectorVertex{T <: AbstractVertex} <: AbstractVertex
     n::Int64
     chs::Vector{T}
 end
-struct NTVertex{T, U <: Tuple{Vararg{AbstractVertex}}} <: AbstractVertex
+mutable struct NTVertex{T, U <: Tuple{Vararg{AbstractVertex}}} <: AbstractVertex
     n::Int64
     chs::NamedTuple{T, U}
 end
-struct BinaryVertex{T <: AbstractVertex, U <: AbstractVertex} <: AbstractVertex
+mutable struct BinaryVertex{T <: AbstractVertex, U <: AbstractVertex} <: AbstractVertex
     n::Int64
     ch1::T
     ch2::U
 end
-struct SingletonVertex{T <: AbstractVertex} <: AbstractVertex
+mutable struct SingletonVertex{T <: AbstractVertex} <: AbstractVertex
     n::Int64
     ch::T
 end
@@ -32,23 +32,27 @@ import HierarchicalUtils: NodeType, noderepr, childrenfields, children
 NodeType(::Type{Leaf}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{<:VectorVertex}) = HierarchicalUtils.InnerNode()
-# children(t::VectorVertex) = (; zip(Symbol.(1:length(t.chs)), t.chs)...)
-# children(t::VectorVertex) = (; zip((Symbol('a' + i - 1) for i in eachindex(t.chs)), t.chs)...)
+set_children(t::VectorVertex, chs) = VectorVertex(t.n, collect(chs))
 children(t::VectorVertex) = tuple(t.chs...)
 
 NodeType(::Type{<:NTVertex}) = HierarchicalUtils.InnerNode()
+set_children(t::NTVertex, chs::NameTuple) = VectorVertex(t.n, collect(chs))
 children(t::NTVertex) = t.chs
 
 NodeType(::Type{<:BinaryVertex}) = HierarchicalUtils.InnerNode()
+set_children(t::BinaryVertex, chs) = BinaryVertex(t.n, chs[1], chs[2])
 children(t::BinaryVertex) = (t.ch1, t.ch2)
 
-NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
+# NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
+NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
+set_children(t::SingletonVertex, chs) = SingletonVertex(t.n, only(chs))
 children(t::SingletonVertex) = (t.ch,)
 
 noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
 Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
 
-NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
+# NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
+NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
 noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
@@ -58,11 +62,11 @@ Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T
 NodeType(::Type{T}) where T <: Union{Dict, Vector} = InnerNode()
 children(t::Dict) = (; (Symbol(k) => v for (k, v) in t)...)
 children(t::Vector) = tuple(t...)
+set_children(::Vector, chs) = collect(chs)
+set_children(::Dict, chs::NamedTuple) = Dict(chs)
 noderepr(::Dict) = "Dict of"
 noderepr(::Vector) = "Vector of"
 
-# TODO
-# childrenfields
 
 const SINGLE_NODE_1 = Leaf(1)
 const SINGLE_NODE_2 = VectorVertex(1, AbstractVertex[])

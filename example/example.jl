@@ -107,10 +107,10 @@ printtree(t_golden; trunc=10)
 collect(NodeIterator(t1))
 # all nodes with leaf trait, not empty InnerNodes!
 collect(LeafIterator(t1))
-collect(TypeIterator{Value}(t1))
-collect(TypeIterator{Operation}(t1))
-collect(TypeIterator{Expression}(t1))
-collect(TypeIterator{Union{Value, Operation}}(t1))
+collect(TypeIterator(t1, Value))
+collect(TypeIterator(t1, Operation))
+collect(TypeIterator(t1, Expression))
+collect(TypeIterator(t1, Union{Value, Operation}))
 
 pred(n::Operation) = in(n.op, [+, -])
 pred(n::Value) = isodd(n.x)
@@ -119,20 +119,23 @@ collect(PredicateIterator(t1, pred))
 
 # TODO intersect
 # TODO Vracet nothing kdyz skonci nejaky iterator - optional
-collect(ZipIterator(t1, t2))
+collect(NodeIterator((t1, t2)))
 t3 = @infix x+y
-collect(ZipIterator(t1, t3))
+collect(NodeIterator((t1, t3); complete=false))
+collect(NodeIterator((t1, t3); complete=true))
 
-collect(MultiIterator(NodeIterator(t1), NodeIterator(t1)))
-collect(MultiIterator(NodeIterator(t1), LeafIterator(t1)))
+# collect(MultiIterator(NodeIterator(t1), NodeIterator(t1)))
+# collect(MultiIterator(NodeIterator(t1), LeafIterator(t1)))
 
+# TODO postorder for evaluation
 # preorder walk, once a leaf is returned -> stop, mapping applied to children of a mapped node!
 # change of type is ok
 # Note: for dispatching on types do not use inline definition!
 # be careful about changing children
 t1
 assignment = Dict(:x => 1, :y => 2)
-t1_assigned = treemap(t1) do n
+t1_assigned = treemap(t1) do (n, _)
+    @show n
     if n isa Variable
         return Value(assignment[n.x])
     else
