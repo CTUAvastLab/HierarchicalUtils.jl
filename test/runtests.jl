@@ -36,7 +36,7 @@ set_children(t::VectorVertex, chs) = VectorVertex(t.n, collect(chs))
 children(t::VectorVertex) = tuple(t.chs...)
 
 NodeType(::Type{<:NTVertex}) = HierarchicalUtils.InnerNode()
-set_children(t::NTVertex, chs::NameTuple) = VectorVertex(t.n, collect(chs))
+set_children(t::NTVertex, chs::NamedTuple) = VectorVertex(t.n, collect(chs))
 children(t::NTVertex) = t.chs
 
 NodeType(::Type{<:BinaryVertex}) = HierarchicalUtils.InnerNode()
