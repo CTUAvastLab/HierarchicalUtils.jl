@@ -27,31 +27,25 @@ mutable struct SingletonVertex{T <: AbstractVertex} <: AbstractVertex
     ch::T
 end
 
-import HierarchicalUtils: NodeType, noderepr, childrenfields, children
+import HierarchicalUtils: NodeType, noderepr, children
 
 NodeType(::Type{Leaf}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{<:VectorVertex}) = HierarchicalUtils.InnerNode()
-set_children(t::VectorVertex, chs) = VectorVertex(t.n, collect(chs))
 children(t::VectorVertex) = tuple(t.chs...)
 
 NodeType(::Type{<:NTVertex}) = HierarchicalUtils.InnerNode()
-set_children(t::NTVertex, chs::NamedTuple) = VectorVertex(t.n, collect(chs))
 children(t::NTVertex) = t.chs
 
 NodeType(::Type{<:BinaryVertex}) = HierarchicalUtils.InnerNode()
-set_children(t::BinaryVertex, chs) = BinaryVertex(t.n, chs[1], chs[2])
 children(t::BinaryVertex) = (t.ch1, t.ch2)
 
-# NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
-set_children(t::SingletonVertex, chs) = SingletonVertex(t.n, only(chs))
 children(t::SingletonVertex) = (t.ch,)
 
 noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
 Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
 
-# NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.SingletonNode()
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
@@ -62,8 +56,6 @@ Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T
 NodeType(::Type{T}) where T <: Union{Dict, Vector} = InnerNode()
 children(t::Dict) = (; (Symbol(k) => v for (k, v) in t)...)
 children(t::Vector) = tuple(t...)
-set_children(::Vector, chs) = collect(chs)
-set_children(::Dict, chs::NamedTuple) = Dict(chs)
 noderepr(::Dict) = "Dict of"
 noderepr(::Vector) = "Vector of"
 
@@ -71,8 +63,9 @@ noderepr(::Vector) = "Vector of"
 const SINGLE_NODE_1 = Leaf(1)
 const SINGLE_NODE_2 = VectorVertex(1, AbstractVertex[])
 const SINGLE_NODE_3 = NTVertex(1, NamedTuple())
-const SINGLE_NODE_4 = []
+const SINGLE_NODE_4 = AbstractVertex[]
 const SINGLE_NODE_5 = Dict()
+const SINGLE_NODES = [SINGLE_NODE_1, SINGLE_NODE_2, SINGLE_NODE_3, SINGLE_NODE_4, SINGLE_NODE_5]
 
 const LINEAR_TREE_1 = VectorVertex(1,[
                                       NTVertex(2, (;
@@ -140,7 +133,7 @@ const T4 = NTVertex(1, (
 const T5 = NTVertex(1, NamedTuple())
 
 const TEST_TREES = [
-                    SINGLE_NODE_1, SINGLE_NODE_2, SINGLE_NODE_3, SINGLE_NODE_4, SINGLE_NODE_5,
+                    SINGLE_NODES...,
                     LINEAR_TREE_1, LINEAR_TREE_2, LINEAR_TREE_3,
                     COMPLETE_BINARY_TREE_1, COMPLETE_BINARY_TREE_2,
                     T1, T2, T3, T4, T5
@@ -149,9 +142,9 @@ const TEST_TREES = [
 const TYPES = [Leaf, VectorVertex, BinaryVertex, NTVertex, Vector, Dict]
 const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
-# TODO
-# tests - unsorted children
-# test sorting of children a children intersections
+@testset "Utilities" begin
+    include("utilities.jl")
+end
 @testset "Simple statistics" begin
     include("statistics.jl")
 end

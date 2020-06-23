@@ -19,24 +19,17 @@ children(_, ::T) where T = @error "Define children(n::$T) to return a NamedTuple
 
 # set_children(n::T, chs::U) where {T, U} = @error "Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps"
 
-# function _childsort(x::Tuple)
-#     # ks = tuple((Symbol('a' + i - 1) for i in eachindex(x))...)
-#     # NamedTuple{ks}(x)
-#     x
-# end
-_childsort(x) = x
+function _childsort(x::Tuple)
+    ks = tuple((Symbol("i$i") for i in eachindex(x))...)
+    # ks = tuple((Symbol.(eachindex(x)))...)
+    NamedTuple{ks}(x)
+end
 function _childsort(x::NamedTuple{T}) where T
     ks = tuple(sort(collect(T))...)
     NamedTuple{ks}(x[k] for k in ks)
 end
 _children_sorted(n) = _childsort(children(n))
 _children_pairs(ts, complete::Bool) = collect(values(_children_pairs_keys(ts, complete)))
-# function _children_pairs(ts, complete::Bool)
-#     chss = [isnothing(t) ? NamedTuple() : _children_sorted(t) for t in ts]
-#     ks = complete ? union(keys.(chss)...) : intersect(keys.(chss)...)
-#     [tuple((k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...)
-#          for k in sort(ks)]
-# end
 function _children_pairs_keys(ts, complete::Bool)
     chss = [isnothing(t) ? NamedTuple() : _children_sorted(t) for t in ts]
     ks = complete ? union(keys.(chss)...) : intersect(keys.(chss)...)
