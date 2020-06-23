@@ -1,44 +1,23 @@
 module HierarchicalUtils
 
-# using Setfield
 using DataStructures
 
 abstract type NodeType end
 struct LeafNode <: NodeType end
 struct InnerNode <: NodeType end
-# struct SingletonNode <: NodeType end
 
-# NodeType(::Type{T}) where T = @error "Define NodeType(::Type{$T}) to be either LeafNode(), SingletonNode() or InnerNode()"
 NodeType(::Type{T}) where T = @error "Define NodeType(::Type{$T}) to be either LeafNode() or InnerNode()"
 NodeType(x::T) where T = NodeType(T)
 
 isleaf(n) = isleaf(NodeType(n), n)
 isleaf(::LeafNode, _) = true
-# isleaf(::SingletonNode, _) = false
 isleaf(::InnerNode, n) = nchildren(n) == 0
-
-# childrenfields(::Type{T}) where T = @error "Define childrenfields(::$T) to be the iterable over fields of the structure pointing to the children"
-# childrenfields(::T) where T = childrenfields(T)
 
 children(n) = children(NodeType(n), n)
 children(::LeafNode, _) = ()
 children(_, ::T) where T = @error "Define children(n::$T) to return a NamedTuple or a Tuple of children"
 
-# TODO rename NodeTypes?
-# TODO solve better the NamedTuple x Tuple problem while storing
-set_children(n, chs) = @error "Define set_children(n::$T, chs) where chs are new children to use PreOrder maps"
-# function set_children(::SingletonNode, n::T, chs) where T
-#     for (chf, ch) in zip(childrenfields(T), values(chs))
-#         @eval @set! $n.$(chf) = $ch
-#     end
-#     n
-# end
-# function set_children(::InnerNode, n::T, chs) where T
-#     @show T
-#     @show @eval childrenfields(Operation)
-#     @eval @set $n.$(only(childrenfields(T))) = $chs
-# end
-
+# set_children(n::T, chs::U) where {T, U} = @error "Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps"
 
 # function _childsort(x::Tuple)
 #     # ks = tuple((Symbol('a' + i - 1) for i in eachindex(x))...)
@@ -73,13 +52,10 @@ noderepr(x) = repr(x)
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
-# nchildren(::SingletonNode, n) = 1
 nchildren(::InnerNode, n) = length(children(n))
 
-# export NodeType, LeafNode, SingletonNode, InnerNode
 export NodeType, LeafNode, InnerNode
 export children, nchildren, set_children
-# export childrenfields, children, nchildren, set_children
 export noderepr, printchildren
 
 include("statistics.jl")
