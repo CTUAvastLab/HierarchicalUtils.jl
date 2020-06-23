@@ -1,13 +1,3 @@
-# # TODO fix error when trying to assign a named tuple to an array
-fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
-fbroadcast(f::Function, a) = f.(a)
-
-select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
-select_keys(x::Tuple, y::Tuple) = x[eachindex(y)]
-function select_keys(x::NamedTuple, y::NamedTuple)
-    NamedTuple{keys(y)}(tuple((x[k] for k in keys(y))...))
-end
-
 # treemap(f::Function, t; kwargs...) = treemap(f, (t,); kwargs...)
 treemap(f::Function, t; kwargs...) = treemap((t, chs) -> f(only(t), chs), (t,); kwargs...)
 treemap(f::Function, ts...; kwargs...) = treemap(f, ts; kwargs...)
@@ -19,10 +9,21 @@ function treemap(f::Function, ts::Tuple; complete::Bool=false, order::AbstractOr
 end
 
 # TODO finish preorder, think abot how both maps should behave in case of complete traversals
-# maybe annotate about named tuples? Pomoci traits?
+# maybe annotate about named tuples? With traits?
+#
+# fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
+# fbroadcast(f::Function, a) = f.(a)
+
+# select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
+# select_keys(x::Tuple, y::Tuple) = x[eachindex(y)]
+# function select_keys(x::NamedTuple, y::NamedTuple)
+#     NamedTuple{keys(y)}(tuple((x[k] for k in keys(y))...))
+# end
+
 function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
     @error "Treemaps using PreOrder() are not supported yet"
 end
+
 # function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
 #     n = f(ts, _children_sorted.(ts))
 #     isleaf(n) && return n

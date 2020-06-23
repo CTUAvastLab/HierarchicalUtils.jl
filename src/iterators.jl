@@ -17,7 +17,7 @@ struct PredicateIterator{T, O <: AbstractOrder}
     end
 end
 
-_leaf_predicate(ns::Tuple) = all(isleaf(n), ns)
+_leaf_predicate(ns::Tuple) = all(n -> isnothing(n) || isleaf(n), ns)
 _leaf_predicate(n) = isleaf(n)
 _node_predicate(ns::Tuple) = true
 _node_predicate(n) = true
