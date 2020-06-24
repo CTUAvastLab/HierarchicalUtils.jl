@@ -19,23 +19,45 @@ children(_, ::T) where T = @error "Define children(n::$T) to return a NamedTuple
 
 # set_children(n::T, chs::U) where {T, U} = @error "Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps"
 
-function _childsort(x::Tuple)
-    ks = tuple((Symbol("i$i") for i in eachindex(x))...)
-    # ks = tuple((Symbol.(eachindex(x)))...)
-    NamedTuple{ks}(x)
-end
+# function _childsort(x::Tuple)
+#     ks = tuple((Symbol("i$i") for i in eachindex(x))...)
+#     NamedTuple{ks}(x)
+# end
+_childsort(x) = x
 function _childsort(x::NamedTuple{T}) where T
     ks = tuple(sort(collect(T))...)
     NamedTuple{ks}(x[k] for k in ks)
 end
 _children_sorted(n) = _childsort(children(n))
-_children_pairs(ts, complete::Bool) = collect(values(_children_pairs_keys(ts, complete)))
-function _children_pairs_keys(ts, complete::Bool)
-    chss = [isnothing(t) ? NamedTuple() : _children_sorted(t) for t in ts]
+
+# _children_pairs(ts, complete::Bool) = collect(values(_children_pairs_keys(ts, complete)))
+
+function _children_pairs(ts, complete::Bool)
+    chss = [isnothing(t) ? nothing : _children_sorted(t) for t in ts]
+    if all(ch -> ch isa Nothing || ch isa NamedTuple, chss)
+        chss = [isnothing(chs) ? NamedTuple() : chs for chs in chss]
+        _children_pairs_nts(chss, complete)
+    elseif all(ch -> ch isa Nothing || ch isa Tuple, chss)
+        chss = [isnothing(chs) ? tuple() : chs for chs in chss]
+        _children_pairs_tuples(chss, complete)
+    else
+        s = "Incompatible children types (NamedTuple and Tuple) of nodes: " * join([typeof(t) for t in ts], ", ", " and ")
+        error(s)
+    end
+end
+
+function _children_pairs_nts(chss::Vector{<:NamedTuple}, complete::Bool)
     ks = complete ? union(keys.(chss)...) : intersect(keys.(chss)...)
     (; (Symbol(k) => tuple(
                 (k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...
                ) for k in sort(ks))...)
+end
+
+function _children_pairs_tuples(chss::Vector{<:Tuple}, complete::Bool)
+    ml = complete ? maximum(length.(chss)) : minimum(length.(chss))
+    tuple(
+          (tuple((i <= length(chs) ? chs[i] : nothing for chs in chss)...) for i in 1:ml)...
+         )
 end
 
 printchildren(n) = children(n)

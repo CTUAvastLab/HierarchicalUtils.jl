@@ -60,11 +60,11 @@ noderepr(::Dict) = "Dict of"
 noderepr(::Vector) = "Vector of"
 
 
-const SINGLE_NODE_1 = Leaf(1)
-const SINGLE_NODE_2 = VectorVertex(1, AbstractVertex[])
-const SINGLE_NODE_3 = NTVertex(1, NamedTuple())
-const SINGLE_NODE_4 = AbstractVertex[]
-const SINGLE_NODE_5 = Dict()
+const SINGLE_NODE_1 = NTVertex(1, NamedTuple())
+const SINGLE_NODE_2 = Dict()
+const SINGLE_NODE_3 = Leaf(1)
+const SINGLE_NODE_4 = VectorVertex(1, AbstractVertex[])
+const SINGLE_NODE_5 = AbstractVertex[]
 const SINGLE_NODES = [SINGLE_NODE_1, SINGLE_NODE_2, SINGLE_NODE_3, SINGLE_NODE_4, SINGLE_NODE_5]
 
 const LINEAR_TREE_1 = VectorVertex(1,[
@@ -97,18 +97,19 @@ const COMPLETE_BINARY_TREE_1 = BinaryVertex(1,
                                            )
 
 const COMPLETE_BINARY_TREE_2 = NTVertex(1, (
-                                            b = VectorVertex(3, [NTVertex(6, NamedTuple()), Leaf(7)]),
-                                            a = VectorVertex(2, [Leaf(4), VectorVertex(5, AbstractVertex[])])
+                                            b = VectorVertex(3, [Leaf(6), NTVertex(7, NamedTuple())]),
+                                            a = NTVertex(2, (b = NTVertex(5, NamedTuple()), a = VectorVertex(4, AbstractVertex[])))
                                            ))
 
 const T1 = NTVertex(1, (
                         ch1 = NTVertex(2, (
                                            ch1 = Leaf(4),
-                                           ch2 = VectorVertex(5, AbstractVertex[])
+                                           ch2 = NTVertex(5, NamedTuple())
                                           )),
-ch2 = BinaryVertex(3,
-                   NTVertex(6, NamedTuple()),
-                   Leaf(7))
+                        ch2 = BinaryVertex(3,
+                                           Leaf(6),
+                                           NTVertex(7, NamedTuple())
+                                          )
 ))
 const T2 = NTVertex(1, (
                         ch2 = VectorVertex(3, [
@@ -122,13 +123,13 @@ const T2 = NTVertex(1, (
 const T3 = NTVertex(1, (
                         ch1 = NTVertex(2, (
                                            ch1 = VectorVertex(4, AbstractVertex[]),
-                                           ch2 = Leaf(5)
+                                           ch2 = NTVertex(5, NamedTuple())
                                           )),
 ))
 const T4 = NTVertex(1, (
                         ch2 = BinaryVertex(3,
                                            Leaf(6),
-                                           Leaf(7)),
+                                           NTVertex(7, NamedTuple())),
 ))
 const T5 = NTVertex(1, NamedTuple())
 
@@ -142,15 +143,18 @@ const TEST_TREES = [
 const TYPES = [Leaf, VectorVertex, BinaryVertex, NTVertex, Vector, Dict]
 const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
-@testset "Utilities" begin
-    include("utilities.jl")
-end
-@testset "Simple statistics" begin
-    include("statistics.jl")
-end
-@testset "Printing" begin
-    include("printing.jl")
-end
-@testset "Iterators" begin
-    include("iterators.jl")
+# @testset "Utilities" begin
+#     include("utilities.jl")
+# end
+# @testset "Simple statistics" begin
+#     include("statistics.jl")
+# end
+# @testset "Printing" begin
+#     include("printing.jl")
+# end
+# @testset "Iterators" begin
+#     include("iterators.jl")
+# end
+@testset "Maps" begin
+    include("maps.jl")
 end

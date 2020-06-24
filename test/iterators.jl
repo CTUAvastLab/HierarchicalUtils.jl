@@ -1,5 +1,5 @@
 const TEST_TREES_NUMBERED = [
-                             SINGLE_NODE_1, SINGLE_NODE_2, SINGLE_NODE_3,
+                             SINGLE_NODE_1, SINGLE_NODE_3, SINGLE_NODE_4,
                              LINEAR_TREE_1, LINEAR_TREE_2,
                              COMPLETE_BINARY_TREE_1, COMPLETE_BINARY_TREE_2
                             ]

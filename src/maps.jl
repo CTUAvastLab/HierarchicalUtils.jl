@@ -1,9 +1,8 @@
-# treemap(f::Function, t; kwargs...) = treemap(f, (t,); kwargs...)
+fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
+fbroadcast(f::Function, a) = f.(a)
+
 treemap(f::Function, t; kwargs...) = treemap((t, chs) -> f(only(t), chs), (t,); kwargs...)
 treemap(f::Function, ts...; kwargs...) = treemap(f, ts; kwargs...)
-# treemap(f::Function, t; kwargs...) = treemap((t, chs) -> begin @show only(t), chs
-#                                                  f(only(t), chs)
-#                                                 end, (t,); kwargs...)
 function treemap(f::Function, ts::Tuple; complete::Bool=false, order::AbstractOrder=PostOrder())
     _treemap(f, ts, complete, order)
 end
@@ -11,9 +10,6 @@ end
 # TODO finish preorder, think abot how both maps should behave in case of complete traversals
 # maybe annotate about named tuples? With traits?
 #
-# fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
-# fbroadcast(f::Function, a) = f.(a)
-
 # select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
 # select_keys(x::Tuple, y::Tuple) = x[eachindex(y)]
 # function select_keys(x::NamedTuple, y::NamedTuple)
