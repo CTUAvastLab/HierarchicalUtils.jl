@@ -143,18 +143,18 @@ const TEST_TREES = [
 const TYPES = [Leaf, VectorVertex, BinaryVertex, NTVertex, Vector, Dict]
 const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
-# @testset "Utilities" begin
-#     include("utilities.jl")
-# end
-# @testset "Simple statistics" begin
-#     include("statistics.jl")
-# end
-# @testset "Printing" begin
-#     include("printing.jl")
-# end
-# @testset "Iterators" begin
-#     include("iterators.jl")
-# end
+@testset "Utilities" begin
+    include("utilities.jl")
+end
+@testset "Simple statistics" begin
+    include("statistics.jl")
+end
+@testset "Printing" begin
+    include("printing.jl")
+end
+@testset "Iterators" begin
+    include("iterators.jl")
+end
 @testset "Maps" begin
     include("maps.jl")
 end
