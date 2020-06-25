@@ -70,7 +70,8 @@ nchildren(::LeafNode, n) = 0
 nchildren(::InnerNode, n) = length(children(n))
 
 export NodeType, LeafNode, InnerNode
-export children, nchildren, set_children
+# export children, nchildren, set_children
+export children, nchildren
 export noderepr, printchildren
 
 include("statistics.jl")
