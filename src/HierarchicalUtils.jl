@@ -33,7 +33,7 @@ _children_sorted(n) = _childsort(children(n))
 # _children_pairs(ts, complete::Bool) = collect(values(_children_pairs_keys(ts, complete)))
 
 function _children_pairs(ts, complete::Bool)
-    chss = [isnothing(t) ? nothing : _children_sorted(t) for t in ts]
+    chss = [isnothing(t) || isleaf(t) ? nothing : _children_sorted(t) for t in ts]
     if all(ch -> ch isa Nothing || ch isa NamedTuple, chss)
         chss = [isnothing(chs) ? NamedTuple() : chs for chs in chss]
         _children_pairs_nts(chss, complete)
@@ -89,6 +89,6 @@ export PreOrder, PostOrder, LevelOrder
 export traverse!
 
 include("maps.jl")
-export treemap, treemap!, leafmap, leafmap!, typemap!, typemap
+export treemap!, leafmap!, typemap!, predicatemap!, treemap
 
 end # module

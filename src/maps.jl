@@ -7,7 +7,7 @@ function treemap(f::Function, ts::Tuple; complete::Bool=false, order::AbstractOr
     _treemap(f, ts, complete, order)
 end
 
-# TODO finish preorder, think abot how both maps should behave in case of complete traversals
+# TODO finish preorder, think about how both maps should behave in case of complete traversals
 # maybe annotate about named tuples? With traits?
 #
 # select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
@@ -49,4 +49,8 @@ end
 function typemap!(f::Function, ts, t::Union{Type, Tuple{Vararg{Type}}}; complete::Bool=false,
                   order::AbstractOrder=PostOrder())
     foreach(f, TypeIterator(ts, t; order=order, complete=complete))
+end
+function predicatemap!(f::Function, ts, pred::Function; complete::Bool=false,
+                  order::AbstractOrder=PostOrder())
+    foreach(f, PredicateIterator(ts, pred; order=order, complete=complete))
 end
