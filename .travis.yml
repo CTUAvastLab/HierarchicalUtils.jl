@@ -4,6 +4,7 @@ language: julia
 os:
   - linux
   - osx
+  - windows
 
 arch:
   - amd64
@@ -11,6 +12,7 @@ arch:
 
 julia:
   - 1.4
+  - 1.5
   - nightly
 
 notifications:
