@@ -125,33 +125,33 @@ end
 
 @testset "predicatemap!" for o in ORDERS
         t = deepcopy(COMPLETE_BINARY_TREE_1)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,2,3,5,6,7,8]
         t = deepcopy(COMPLETE_BINARY_TREE_2)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,2,3,5,6,7,8]
         t = deepcopy(T1)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,2,3,5,6,7,8]
         t = deepcopy(T2)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,2,3,6,7]
         t = deepcopy(T3)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,2,5,6]
         t = deepcopy(T4)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [1,3,7,8]
         t = deepcopy(T5)
-        predicatemap!(increment!, t, isleaf; order=o)
+        predicatemap!(increment!, t, HierarchicalUtils._leaf_predicate; order=o)
         @test  [n.n for n in collect(NodeIterator(t; order=LevelOrder()))] == [2]
 
         t2, t3 = deepcopy.([T2, T3])
-        predicatemap!(add_subtract!, (t2, t3), tup -> all(isleaf.(tup)); complete=false, order=o)
+        predicatemap!(add_subtract!, (t2, t3), HierarchicalUtils._leaf_predicate; complete=false, order=o)
         @test  [n.n for n in collect(NodeIterator(t2; order=LevelOrder()))] == [1,2,3,10,6]
         @test  [n.n for n in collect(NodeIterator(t3; order=LevelOrder()))] == [1,2,4,0]
         t2, t3 = deepcopy.([T2, T3])
-        predicatemap!(add_subtract!, (t2, t3), tup -> all(isleaf.(tup)); complete=true, order=o)
+        predicatemap!(add_subtract!, (t2, t3), HierarchicalUtils._leaf_predicate; complete=true, order=o)
         @test  [n.n for n in collect(NodeIterator(t2; order=LevelOrder()))] == [1,2,3,10,16]
         @test  [n.n for n in collect(NodeIterator(t3; order=LevelOrder()))] == [1,2,-6,0]
 end

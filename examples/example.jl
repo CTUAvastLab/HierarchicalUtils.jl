@@ -5,17 +5,6 @@
 # GENERALITY > SPEED, performance critical code may be optimized further once we identify it,
 # though some operations may be inherently slow (changing types, mutability)
 
-# LeafNodes -> no children
-# InnerNodes -> zero, one or more children in a collection 
-# SingletonNodes -> one children saved as a field
-#
-# for leaves, redefine TypeNode(::T)
-# for other nodes, redefine TypeNode(::T), childrenfields, children and OPTIONALLY printchildren and faster nchildren
-#
-# Restrictions:
-# Leaf types and inner types for at least a partial stability
-# children must be indexable structure - named tuple, tuple or vector
-
 using HierarchicalUtils
 
 abstract type Expression end
@@ -28,7 +17,6 @@ mutable struct Variable <: Expression
     x::Symbol
 end
 
-# binary
 mutable struct Operation <: Expression
     op::Function
     ch::Vector{Expression}
@@ -47,16 +35,15 @@ t2 = @infix ((10 / y) + 5) - (8 * z)
 printtree(t1)
 
 # We need to extend some methods
-import HierarchicalUtils: NodeType, noderepr, children, set_children
-NodeType(::Type{Value}) = HierarchicalUtils.LeafNode()
+import HierarchicalUtils: NodeType, LeafNode, InnerNode, noderepr, children
+NodeType(::Type{Value}) = LeafNode()
 noderepr(n::Value) = string(n.x)
 
+NodeType(::Type{Variable}) = LeafNode()
 noderepr(n::Variable) = string(n.x)
-NodeType(::Type{Variable}) = HierarchicalUtils.LeafNode()
 
-NodeType(::Type{Operation}) = HierarchicalUtils.InnerNode()
+NodeType(::Type{Operation}) = InnerNode()
 noderepr(n::Operation) = string(n.op)
-set_children(n::Operation, chs) = Operation(n.op, collect(chs))
 function children(n::Operation)
     keys = tuple([Symbol("op$i") for i in eachindex(n.ch)]...)
     NamedTuple{keys}(n.ch)
@@ -93,8 +80,6 @@ encode_traversal(t1, 1, 1)
 t1[1,1] === t1[1][1] == t1[encode_traversal(t1, 1, 1)]
 
 t_golden = @infix 1 + 1/0
-
-# all equivalent
 t_golden[2,2] = t_golden;
 t_golden[2][2] = t_golden;
 t_golden.ch[2][2] = t_golden;
@@ -121,9 +106,6 @@ collect(NodeIterator((t1, t2)))
 t3 = @infix x+y
 collect(NodeIterator((t1, t3); complete=false))
 collect(NodeIterator((t1, t3); complete=true))
-
-# collect(MultiIterator(NodeIterator(t1), NodeIterator(t1)))
-# collect(MultiIterator(NodeIterator(t1), LeafIterator(t1)))
 
 t1
 assignment = Dict(:x => 1, :y => 2)
