@@ -7,5 +7,10 @@ HierarchicalUtils.jl is a package providing abstract functionality over hierarch
 
 ## How it works
 
-For specific examples, see Jupyter notebooks here: [examples](https://github.com/Sheemon7/HierarchicalUtils.jl/tree/master/example)
+For specific examples, see the following Jupyter notebooks:
+
+Basics: [Expression tree representation](https://github.com/Sheemon7/HierarchicalUtils.jl/blob/master/examples/expression_tree.ipynb)
+
+Advanced applications: [BSON representation visualization](https://github.com/Sheemon7/HierarchicalUtils.jl/blob/master/examples/visualizations.ipynb), 
+[Integration with Mill.jl](https://github.com/Sheemon7/HierarchicalUtils.jl/blob/master/examples/mill_integration.ipynb)
 
