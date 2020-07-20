@@ -20,7 +20,7 @@ end
 function _printtree(io::IO, n, C, d, p, e, trav, trunc)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     nr = noderepr(n)
-    gap = " " ^ min(2, length(nr)-1)
+    gap = " " ^ clamp(length(nr)-1, 0, 2)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
     CH = _printchildrensort(printchildren(n))
     nch = length(CH)
