@@ -1,43 +1,63 @@
 module HierarchicalUtils
 
-using Setfield
 using DataStructures
 
 abstract type NodeType end
 struct LeafNode <: NodeType end
 struct InnerNode <: NodeType end
-struct SingletonNode <: NodeType end
 
-NodeType(::Type{T}) where T = @error "Define NodeType(::Type{$T}) to be either LeafNode(), SingletonNode() or InnerNode()"
+NodeType(::Type{T}) where T = @error "Define NodeType(::Type{$T}) to be either LeafNode() or InnerNode()"
 NodeType(x::T) where T = NodeType(T)
 
 isleaf(n) = isleaf(NodeType(n), n)
 isleaf(::LeafNode, _) = true
-isleaf(::SingletonNode, _) = false
 isleaf(::InnerNode, n) = nchildren(n) == 0
-
-childrenfields(::Type{T}) where T = @error "Define childrenfields(::$T) to be the iterable over fields of the structure pointing to the children"
-childrenfields(::T) where T = childrenfields(T)
 
 children(n) = children(NodeType(n), n)
 children(::LeafNode, _) = ()
 children(_, ::T) where T = @error "Define children(n::$T) to return a NamedTuple or a Tuple of children"
 
-function _childsort(x::Tuple)
-    ks = tuple((Symbol('a' + i - 1) for i in eachindex(x))...)
-    NamedTuple{ks}(x)
-    x
-end
+# set_children(n::T, chs::U) where {T, U} = @error "Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps"
+
+# function _childsort(x::Tuple)
+#     ks = tuple((Symbol("i$i") for i in eachindex(x))...)
+#     NamedTuple{ks}(x)
+# end
+_childsort(x) = x
 function _childsort(x::NamedTuple{T}) where T
     ks = tuple(sort(collect(T))...)
     NamedTuple{ks}(x[k] for k in ks)
 end
 _children_sorted(n) = _childsort(children(n))
+
+# _children_pairs(ts, complete::Bool) = collect(values(_children_pairs_keys(ts, complete)))
+
 function _children_pairs(ts, complete::Bool)
-    chss = [isnothing(t) ? NamedTuple() : _children_sorted(t) for t in ts]
+    chss = [isnothing(t) || isleaf(t) ? nothing : _children_sorted(t) for t in ts]
+    if all(ch -> ch isa Nothing || ch isa NamedTuple, chss)
+        chss = [isnothing(chs) ? NamedTuple() : chs for chs in chss]
+        _children_pairs_nts(chss, complete)
+    elseif all(ch -> ch isa Nothing || ch isa Tuple, chss)
+        chss = [isnothing(chs) ? tuple() : chs for chs in chss]
+        _children_pairs_tuples(chss, complete)
+    else
+        s = "Incompatible children types (NamedTuple and Tuple) of nodes: " * join([typeof(t) for t in ts], ", ", " and ")
+        error(s)
+    end
+end
+
+function _children_pairs_nts(chss::Vector{<:NamedTuple}, complete::Bool)
     ks = complete ? union(keys.(chss)...) : intersect(keys.(chss)...)
-    [tuple((k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...)
-         for k in sort(ks)]
+    (; (Symbol(k) => tuple(
+                (k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...
+               ) for k in sort(ks))...)
+end
+
+function _children_pairs_tuples(chss::Vector{<:Tuple}, complete::Bool)
+    ml = complete ? maximum(length.(chss)) : minimum(length.(chss))
+    tuple(
+          (tuple((i <= length(chs) ? chs[i] : nothing for chs in chss)...) for i in 1:ml)...
+         )
 end
 
 printchildren(n) = children(n)
@@ -47,15 +67,15 @@ noderepr(x) = repr(x)
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
-nchildren(::SingletonNode, n) = 1
 nchildren(::InnerNode, n) = length(children(n))
 
-export NodeType, LeafNode, SingletonNode, InnerNode
-export childrenfields, children, nchildren
+export NodeType, LeafNode, InnerNode
+# export children, nchildren, set_children
+export children, nchildren, isleaf
 export noderepr, printchildren
 
 include("statistics.jl")
-export nnodes, nleafs
+export nnodes, nleafs, treeheight
 
 include("traversal_encoding.jl")
 export encode_traversal, walk, list_traversal
@@ -68,8 +88,7 @@ export NodeIterator, LeafIterator, TypeIterator, PredicateIterator, MultiIterato
 export PreOrder, PostOrder, LevelOrder
 export traverse!
 
-# TODO
-# include("maps.jl")
-# export treemap, treemap!, leafmap, leafmap!
+include("maps.jl")
+export treemap!, leafmap!, typemap!, predicatemap!, treemap
 
 end # module

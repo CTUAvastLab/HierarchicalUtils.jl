@@ -21,7 +21,7 @@ end
 
 function ith_child(m, i::Integer)
     try
-        return children_sorted(m)[i]
+        return _children_sorted(m)[i]
     catch
         @error "Invalid index!"
     end
@@ -52,11 +52,11 @@ end
 #             @error "Invalid index!"
 #         end
 #     end
-#     _walk(children_sorted(n), nc)
+#     _walk(_children_sorted(n), nc)
 # end
 
-function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
-# function _walk(::InnerNode, n, c::AbstractString)
+# function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
+function _walk(::InnerNode, n, c::AbstractString)
     !isempty(c) || return n
     i, nc = decode(c, nchildren(n))
     0 <= i <= nchildren(n) || @error "Invalid index!"
@@ -67,7 +67,7 @@ function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
             @error "Invalid index!"
         end
     end
-    _walk(children_sorted(n)[i], nc)
+    _walk(_children_sorted(n)[i], nc)
 end
 
 encode_traversal(t, idxs::Integer...) = stringify(_encode_traversal(t, idxs...))
@@ -81,8 +81,9 @@ end
 list_traversal(n::T, s::String="") where T = _list_traversal(NodeType(T), n, s)
 
 _list_traversal(::LeafNode, n, s::String="") = [stringify(s)]
-function _list_traversal(::Union{InnerNode, SingletonNode}, m, s::String="")
-    d = children_sorted(m)
+# function _list_traversal(::Union{InnerNode, SingletonNode}, m, s::String="")
+function _list_traversal(::InnerNode, m, s::String="")
+    d = _children_sorted(m)
     n = length(d)
     vcat(stringify(s), [list_traversal(d[i], s * encode(i, n)) for i in 1:n]...)
 end 
