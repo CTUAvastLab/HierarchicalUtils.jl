@@ -27,6 +27,12 @@ isleaf(t) = false
     end
 end
 
+@testset "treeheight" for T in TEST_TREES
+    for n in NodeIterator(T)
+        @test treeheight(n) == (isleaf(n) ?  0 : 1 + maximum(treeheight(ch) for ch in children(n)))
+    end
+end
+
 @testset "nodes with zero children" begin
     @test nleafs(NTVertex(1, NamedTuple())) == 1
     @test nleafs(BinaryVertex(1,

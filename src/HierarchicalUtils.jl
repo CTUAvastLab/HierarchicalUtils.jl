@@ -71,11 +71,11 @@ nchildren(::InnerNode, n) = length(children(n))
 
 export NodeType, LeafNode, InnerNode
 # export children, nchildren, set_children
-export children, nchildren
+export children, nchildren, isleaf
 export noderepr, printchildren
 
 include("statistics.jl")
-export nnodes, nleafs
+export nnodes, nleafs, treeheight
 
 include("traversal_encoding.jl")
 export encode_traversal, walk, list_traversal
