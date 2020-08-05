@@ -91,4 +91,7 @@ export traverse!
 include("maps.jl")
 export treemap!, leafmap!, typemap!, predicatemap!, treemap
 
+include("definitions.jl")
+export @hierarchical_dict, @hierarchical_vector, @primitives
+
 end # module

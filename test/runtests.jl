@@ -52,13 +52,9 @@ children(t::SingletonVertex) = (t.ch,)
 noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
 Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
 
-# Dict and Vector as nodes
-NodeType(::Type{T}) where T <: Union{Dict, Vector} = InnerNode()
-children(t::Dict) = (; (Symbol(k) => v for (k, v) in t)...)
-children(t::Vector) = tuple(t...)
-noderepr(::Dict) = "Dict of"
-noderepr(::Vector) = "Vector of"
-
+HierarchicalUtils.@primitives
+HierarchicalUtils.@hierarchical_dict
+HierarchicalUtils.@hierarchical_vector
 
 const SINGLE_NODE_1 = NTVertex(1, NamedTuple())
 const SINGLE_NODE_2 = Dict()
