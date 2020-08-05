@@ -5,7 +5,6 @@ macro hierarchical_dict()
                    NodeType(::Type{<:Dict}) = InnerNode()
                    children(d::Dict) = (; (Symbol(k) => v for (k, v) in d)...)
                    noderepr(d::Dict) = isempty(d) ? "Empty Dict" : "Dict of"
-                   Base.show(io::IO, ::MIME"text/plain", d::Dict) = printtree(io, d; trunc=2, htrunc=20)
                    return
                end
               )
@@ -18,7 +17,6 @@ macro hierarchical_vector()
                    NodeType(::Type{<:Vector}) = InnerNode()
                    children(v::Vector) = tuple(v...)
                    noderepr(v::Vector) = isempty(v) ? "Empty Vector" : "Vector of"
-                   Base.show(io::IO, ::MIME"text/plain", v::Vector) = printtree(io, v; trunc=2, htrunc=20)
                    return
                end
               )
