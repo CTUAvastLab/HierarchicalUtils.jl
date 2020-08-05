@@ -9,7 +9,7 @@ end
     @test numlines(buf) == nnodes(t)
 end
 
-@testset "printtree truncation for infinite trees" begin
+@testset "printtree horizontal truncation for infinite trees" begin
     t1 = VectorVertex(1, AbstractVertex[])
     push!(t1.chs, t1)
     t2 = Dict()
@@ -20,6 +20,13 @@ end
     printtree(buf2, t2; trunc=20)
     @test numlines(buf1) == 10 + 1 # one line for ellipsis ⋮
     @test numlines(buf2) == 20 + 1 # one line for ellipsis ⋮
+end
+
+@testset "printtree vertical truncation for many children" for l in 0:20, vtrunc in 0:20
+    v = 1:l |> collect
+    buf = IOBuffer()
+    printtree(buf, v; vtrunc=vtrunc)
+    @test numlines(buf) == min(l, vtrunc + 1) + 1 # one line for ellipsis ⋮ and one for the header
 end
 
 @testset "printtree labelled children sorted" begin
