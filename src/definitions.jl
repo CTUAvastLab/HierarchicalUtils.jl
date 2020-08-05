@@ -30,6 +30,8 @@ macro primitives()
                    import HierarchicalUtils: NodeType, LeafNode
                    NodeType(::Type{<:Number}) = LeafNode()
                    NodeType(::Type{<:AbstractString}) = LeafNode()
+                   NodeType(::Type{<:Symbol}) = LeafNode()
+                   NodeType(::Type{<:AbstractChar}) = LeafNode()
                    return
                end
               )
