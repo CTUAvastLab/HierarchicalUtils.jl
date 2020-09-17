@@ -65,10 +65,9 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
     end
 end
 
-# TODO rename trunc to htrunc in next breaking release
 printtree(n; kwargs...) = printtree(stdout, n; kwargs...)
-function printtree(io::IO, n; trav::Bool=false, trunc::Real=Inf, vtrunc::Real=Inf)
-    @assert trunc ≥ 0 "trunc must be ≥ 0"
+function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf)
+    @assert htrunc ≥ 0 "htrunc must be ≥ 0"
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
-    _printtree(io, n, COLORS, 0, [], "", trav, trunc, vtrunc)
+    _printtree(io, n, COLORS, 0, [], "", trav, htrunc, vtrunc)
 end

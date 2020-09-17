@@ -15,9 +15,9 @@ end
     t2 = Dict()
     t2["ch"] = t2
     buf1 = IOBuffer()
-    printtree(buf1, t1; trunc=10)
+    printtree(buf1, t1; htrunc=10)
     buf2 = IOBuffer()
-    printtree(buf2, t2; trunc=20)
+    printtree(buf2, t2; htrunc=20)
     @test numlines(buf1) == 10 + 1 # one line for ellipsis ⋮
     @test numlines(buf2) == 20 + 1 # one line for ellipsis ⋮
 end
