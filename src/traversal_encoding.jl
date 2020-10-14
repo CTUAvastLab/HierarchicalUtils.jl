@@ -4,7 +4,7 @@ const INV_ALPHABET = Dict(c => i for (i,c) in enumerate(ALPHABET))
 _segment_width(l::Integer) = ceil(Int, log2(l+1))
 encode(i::Integer, l::Integer) = string(i, base=2, pad=_segment_width(l))
 function decode(c::AbstractString, l::Integer)
-    k = min(_segment_width(l), length(c))
+    k = max(1, min(_segment_width(l), length(c)))
     parse(Int, c[1:k], base=2), c[k+1:end]
 end
 
@@ -17,14 +17,6 @@ end
 
 function destringify(c::AbstractString)
     join(string(INV_ALPHABET[x] - 1, base=2, pad=6) for x in c)
-end
-
-function ith_child(m, i::Integer)
-    try
-        return _children_sorted(m)[i]
-    catch
-        @error "Invalid index!"
-    end
 end
 
 walk(n::T, c) where T = _walk(n, destringify(c))
@@ -58,8 +50,8 @@ end
 # function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
 function _walk(::InnerNode, n, c::AbstractString)
     !isempty(c) || return n
-    i, nc = decode(c, nchildren(n))
-    0 <= i <= nchildren(n) || @error "Invalid index!"
+    i, nc = decode(c, nprintchildren(n))
+    0 <= i <= nprintchildren(n) || @error "Invalid index!"
     if i == 0
         if Set(nc) ⊆ ['0']
             return n
@@ -67,14 +59,14 @@ function _walk(::InnerNode, n, c::AbstractString)
             @error "Invalid index!"
         end
     end
-    _walk(_children_sorted(n)[i], nc)
+    _walk(_ith_child(printchildren(n), i), nc)
 end
 
 encode_traversal(t, idxs::Integer...) = stringify(_encode_traversal(t, idxs...))
 
 function _encode_traversal(t, idxs...)
     !isempty(idxs) || return ""
-    n = ith_child(t, idxs[1])
+    n = _ith_child(printchildren(t), idxs[1])
     return encode(idxs[1], nchildren(t)) * _encode_traversal(n, idxs[2:end]...)
 end
 
@@ -83,7 +75,7 @@ list_traversal(n::T, s::String="") where T = _list_traversal(NodeType(T), n, s)
 _list_traversal(::LeafNode, n, s::String="") = [stringify(s)]
 # function _list_traversal(::Union{InnerNode, SingletonNode}, m, s::String="")
 function _list_traversal(::InnerNode, m, s::String="")
-    d = _children_sorted(m)
+    d = printchildren(m)
     n = length(d)
-    vcat(stringify(s), [list_traversal(d[i], s * encode(i, n)) for i in 1:n]...)
+    vcat(stringify(s), [list_traversal(_ith_child(d, i), s * encode(i, n)) for i in 1:n]...)
 end 
