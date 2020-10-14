@@ -2,7 +2,7 @@ correct_nchildren(::Leaf) = 0
 correct_nchildren(::SingletonVertex) = 1
 correct_nchildren(::BinaryVertex) = 2
 correct_nchildren(t::Union{VectorVertex, NTVertex}) = length(t.chs)
-correct_nchildren(t::Union{Vector, Dict}) = length(t)
+correct_nchildren(t::Union{Vector, Dict, Tuple}) = length(t)
 
 @testset "nchildren" for T in TEST_TREES
     for n in NodeIterator(T)
@@ -18,18 +18,18 @@ end
 
 isleaf(::Leaf) = true
 isleaf(t::Union{VectorVertex, NTVertex}) = correct_nchildren(t) == 0
-isleaf(t::Union{Vector, Dict}) = correct_nchildren(t) == 0
+isleaf(t::Union{Vector, Dict, Tuple}) = correct_nchildren(t) == 0
 isleaf(t) = false
 
 @testset "nleafs" for T in TEST_TREES
     for n in NodeIterator(T)
-        @test nleafs(n) == filter(isleaf, NodeIterator(n) |> collect) |> length
+        @test nleafs(n) == count(isleaf, NodeIterator(n))
     end
 end
 
 @testset "treeheight" for T in TEST_TREES
     for n in NodeIterator(T)
-        @test treeheight(n) == (isleaf(n) ?  0 : 1 + maximum(treeheight(ch) for ch in children(n)))
+        @test treeheight(n) == (isleaf(n) ?  0 : 1 + maximum(treeheight(ch) for ch in _iter(children(n))))
     end
 end
 

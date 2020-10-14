@@ -46,38 +46,37 @@ end
     @test r == map(t -> t.n, NodeIterator(t; order=LevelOrder())) |> collect
 end
 
-@testset "tuple x only tree handling" for t in TEST_TREES_NUMBERED
+@testset "multiple tree handling" for t in TEST_TREES_NUMBERED
     for o in ORDERS
-        @test collect(NodeIterator(t; order=o)) == collect(map(only, NodeIterator((t,); order=o)))
-        @test collect(PredicateIterator(t, t -> t.n > 3; order=o)) ==
-        collect(map(only, PredicateIterator((t,), t -> only(t).n > 3; order=o))) ==
-        vcat(map(unique, PredicateIterator((t,t), t -> t[1].n > 3; order=o))...)
+        @test collect(map(only, PredicateIterator(_node_predicate, (t,), false; order=o))) ==
+                    collect(NodeIterator(t; order=o))
+        @test collect(PredicateIterator(t -> t.n > 3, t; order=o)) ==
+            collect(map(only, PredicateIterator(t -> only(t).n > 3, (t,), false; order=o))) ==
+            vcat(map(unique, PredicateIterator(t -> t[1].n > 3, t, t; order=o))...)
     end
 end
 
 @testset "type iterator same types" for t in TEST_TREES_NUMBERED
     for o in ORDERS, type in TYPES
-        @test collect(TypeIterator(t, type; order=o)) ==
-        collect(map(only, TypeIterator((t,), type; order=o))) ==
-        collect(map(only, TypeIterator((t,), (type,); order=o))) ==
-        vcat(map(unique, TypeIterator((t,t), type; order=o))...) ==
-        vcat(map(unique, TypeIterator((t,t), (type, type); order=o))...)
+        @test collect(TypeIterator(type, t; order=o)) ==
+        vcat(map(unique, TypeIterator(type, t, t; order=o))...) ==
+        vcat(map(unique, TypeIterator((type, type), t, t; order=o))...)
     end
 end
 
 @testset "type iterator different types" for t in TEST_TREES_NUMBERED
     for o in ORDERS, type in TYPES
-        @test collect(TypeIterator((t,t), (type, type); order=o)) ==
-        zip(collect(TypeIterator(t, type; order=o)),
-            collect(TypeIterator(t, type; order=o))) |> collect
+        @test collect(TypeIterator((type, type), t, t; order=o)) ==
+        zip(collect(TypeIterator(type, t; order=o)),
+            collect(TypeIterator(type, t; order=o))) |> collect
     end
 end
 
 @testset "empty iterator" for o in ORDERS
-    @test collect(NodeIterator((); order=o, complete=true)) ==
-    collect(NodeIterator((); order=o, complete=false)) == Union{}[]
-    @test collect(LeafIterator((); order=o, complete=true)) ==
-    collect(LeafIterator((); order=o, complete=false)) == Union{}[]
+    @test collect(NodeIterator(; order=o, complete=true)) ==
+    collect(NodeIterator(; order=o, complete=false)) == Union{}[]
+    @test collect(LeafIterator(; order=o, complete=true)) ==
+    collect(LeafIterator(; order=o, complete=false)) == Union{}[]
 end
 
 @testset "complete traversals" for o in ORDERS
@@ -86,8 +85,11 @@ end
                         LevelOrder() => LEVELORDERS[end])
     for ts in powerset([T1, T2, T3, T4, T5])
         !isempty(ts) || continue
-        full_it = NodeIterator(tuple(ts...); order=o, complete=true)
-        res = collect(map(ts -> tuple([isnothing(t) ? t : t.n for t in ts]...), full_it))
+        res = NodeIterator(ts...; order=o, complete=true)
+        if length(ts) == 1
+            res = map(tuple, res)
+        end
+        res = collect(map(ts -> tuple([isnothing(t) ? t : t.n for t in ts]...), res))
         single_res = [collect(map(t -> t.n, NodeIterator(t; order=o))) for t in ts]
         idcs = intersect(FULL_ORDER[o], union(single_res...))
         @test all(irs -> all(r -> isnothing(r) || r == irs[1], irs[2]), zip(idcs, res))
@@ -97,8 +99,11 @@ end
 @testset "incomplete traversals" for o in ORDERS
     for ts in powerset([T1, T2, T3, T4, T5])
         !isempty(ts) || continue
-        full_it = NodeIterator(tuple(ts...); order=o, complete=false)
-        res = collect(map(ts -> tuple([isnothing(t) ? t : t.n for t in ts]...), full_it))
+        res = NodeIterator(ts...; order=o, complete=false)
+        if length(ts) == 1
+            res = map(tuple, res)
+        end
+        res = collect(map(ts -> tuple([isnothing(t) ? t : t.n for t in ts]...), res))
         @test all(r -> length(unique(r)) == 1, res)
         res = vcat([unique(r) for r in res]...)
         single_res = [collect(map(t -> t.n, NodeIterator(t; order=o))) for t in ts]
