@@ -7,23 +7,18 @@ function paddedprint(io, s...; color=:default, pad=[])
     printstyled(io, s..., color=color)
 end
 
-printkeys(ch) = ["" for _ in eachindex(ch)]
-printkeys(ch::NamedTuple) = ["$k: " for k in keys(ch)]
-
-# sort for named tuples only
-_printchildrensort(x) = x
-function _printchildrensort(x::NamedTuple{T}) where T
-    ks = tuple(sort(collect(T))...)
-    NamedTuple{ks}(x[k] for k in ks)
-end
+_printkeys(ch) = ["" for _ in eachindex(ch)]
+_printkeys(ch::Union{NamedTuple, Dict, OrderedDict}) = ["$k: " for k in keys(ch)]
+_printkeys(ch::PairVec) = ["$k: " for (k,v) in ch]
 
 function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
     c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
     nr = noderepr(n)
     gap = " " ^ clamp(length(nr)-1, 0, 2)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
-    CH = _printchildrensort(printchildren(n))
-    PK = printkeys(CH)
+    CH = printchildren(n)
+    PK = _printkeys(CH)
+    CH = _iter(CH)
     nch = length(CH)
 
     function _printchild(i, ch, pk, l)
