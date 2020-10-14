@@ -1,4 +1,3 @@
-# TODO define this implicitly?
 macro hierarchical_dict()
     return esc(
                quote
