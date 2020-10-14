@@ -34,6 +34,18 @@ macro hierarchical_tuple()
               )
 end
 
+macro hierarchical_namedtuple()
+    return esc(
+               quote
+                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   NodeType(::Type{<:NamedTuple}) = InnerNode()
+                   children(v::NamedTuple) = v
+                   noderepr(v::NamedTuple) = isempty(v) ? "()" : "NamedTuple of"
+                   return
+               end
+              )
+end
+
 macro hierarchical_pairvector()
     return esc(
                quote
