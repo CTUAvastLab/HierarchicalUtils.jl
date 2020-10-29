@@ -7,8 +7,7 @@ abstract type NodeType end
 struct LeafNode <: NodeType end
 struct InnerNode <: NodeType end
 
-const PairVec{T} = Vector{<:Pair{T}}
-const HUtilIter = Union{Vector, PairVec, Tuple, NamedTuple, Dict, OrderedDict}
+const PairVec = Vector{<:Pair}
 
 NodeType(::Type{T}) where T = @error "Define NodeType(::Type{$T}) to be either LeafNode() or InnerNode()"
 NodeType(x::T) where T = NodeType(T)

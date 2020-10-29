@@ -22,10 +22,21 @@ function _ith_child(m::PairVec, i::Integer)
     return last(m[i])
 end
 
+_indexed(::Union{Vector, Tuple}) = true
+_indexed(_) = false
+_named(::Union{NamedTuple, Dict, OrderedDict, PairVec}) = true
+_named(_) = false
+
 function _children_pairs(ts, complete::Bool)
     chss1 = [_children_sorted(t) for t in ts if !(isnothing(t) || isleaf(t))]
     chss2 = [isnothing(t) || isleaf(t) ? nothing : _children_sorted(t) for t in ts]
-    isempty(chss1) ? chss1 : _children_pairs_aux(chss1, chss2, complete)
+    isempty(chss1) && return chss1
+    # type stability here is impossible
+    if all(isa.(chss2, PairVec))
+        _children_pairs_aux(PairVec[], chss2, complete)
+    else
+        _children_pairs_aux(chss1, chss2, complete)
+    end
 end
 
 # for performance reasons, this should always return the same type as input
@@ -56,7 +67,7 @@ end
 
 function _children_pairs_aux(::Vector{<:OrderedDict}, chss, complete)
     chss = [isnothing(chs) ? OrderedDict() : chs for chs in chss]
-    ks = complete ? union(keys.(chss)...) : intersect(keys.(chss)...)
+    ks = complete ? union(collect.(keys.(chss))...) : intersect(collect.(keys.(chss))...)
     OrderedDict(k => tuple((k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...)
         for k in sort(ks |> collect))
 end
@@ -65,12 +76,20 @@ function _children_pairs_aux(::Vector{<:PairVec}, chss, complete)
     ks = [isnothing(chs) || length(Dict(chs)) == length(chs) for chs in chss]
     all(ks) || throw(ArgumentError("Two or more identical keys in children represented as a vector of pairs"))
     chss = [isnothing(chs) ? OrderedDict() : OrderedDict(chs) for chs in chss]
-    ks = complete ? union(collect.(keys.(chss))...) : intersect(collect.(keys.(chss))...)
-    OrderedDict(k => tuple((k in keys(chss[i]) ? chss[i][k] : nothing for i in eachindex(chss))...)
-        for k in sort(ks |> collect)) |> collect
+    _children_pairs_aux(chss, chss, complete) |> collect
 end
 
-_children_pairs_aux(chss1, chss2, complete) = throw_types(chss1)
+# fallback definition, this should be avoided as much as possible
+function _children_pairs_aux(chss1, chss2, complete)
+    if all(_indexed.(chss1))
+        chss2 = [isnothing(chs) ? chs : chs |> collect for chs in chss2]
+        return _children_pairs_aux(Vector[], chss2, complete)
+    elseif all(_named.(chss1))
+        chss2 = [isnothing(chs) || chs isa PairVec ? chs : chs |> pairs |> collect for chs in chss2]
+        return _children_pairs_aux(PairVec[], chss2, complete)
+    end
+    throw_types(chss1)
+end
 
 function throw_types(chss)
     throw(ArgumentError(

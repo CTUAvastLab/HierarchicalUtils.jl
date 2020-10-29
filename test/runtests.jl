@@ -20,18 +20,18 @@ mutable struct VectorVertex <: AbstractVertex
     chs::Vector
 end
 # named tuple as children
-mutable struct NTVertex{T, U <: Tuple{Vararg{AbstractVertex}}} <: AbstractVertex
+mutable struct NTVertex{T, U} <: AbstractVertex
     n::Int64
     chs::NamedTuple{T, U}
 end
 # vector as children
-mutable struct BinaryVertex{T <: AbstractVertex, U <: AbstractVertex} <: AbstractVertex
+mutable struct BinaryVertex{T, U} <: AbstractVertex
     n::Int64
     ch1::T
     ch2::U
 end
 # tuple as children
-mutable struct SingletonVertex{T <: AbstractVertex} <: AbstractVertex
+mutable struct SingletonVertex{T} <: AbstractVertex
     n::Int64
     ch::T
 end
@@ -45,6 +45,8 @@ HierarchicalUtils.@hierarchical_vector
 HierarchicalUtils.@hierarchical_tuple
 # vector of pairs as children
 HierarchicalUtils.@hierarchical_pairvector
+# named tuple as children
+HierarchicalUtils.@hierarchical_namedtuple
 
 import HierarchicalUtils: NodeType, noderepr, children
 
@@ -158,21 +160,10 @@ const TEST_TREES = [
 const TYPES = [Leaf, VectorVertex, BinaryVertex, NTVertex, Vector, Dict, Tuple, PairVec]
 const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
-@testset "Utilities" begin
-    include("utilities.jl")
-end
-@testset "Simple statistics" begin
-    include("statistics.jl")
-end
-@testset "Traversals" begin
-    include("traversal_encoding.jl")
-end
-@testset "Printing" begin
-    include("printing.jl")
-end
-@testset "Iterators" begin
-    include("iterators.jl")
-end
-@testset "Maps" begin
-    include("maps.jl")
+for test_f in readdir(".")
+    (endswith(test_f, ".jl") && test_f != "runtests.jl") || continue
+    @info "<HEARTBEAT>"
+    @eval @testset $test_f begin
+        include($test_f)
+    end
 end

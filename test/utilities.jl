@@ -1,9 +1,9 @@
 l1, l2, l3 = Leaf.([1, 2, 3])
 n1nt = NTVertex(1, (a = l1, c = l3, b = l2))
 n2nt = NTVertex(2, (c = l3, a = l1))
-n3nt = NTVertex(3, (b = l2, c = l3))
+n3nt = (b = l2, c = l3)
 n4nt = NTVertex(4, (b = l2,))
-n5nt = NTVertex(5, NamedTuple())
+n5nt = NamedTuple()
 n1d = Dict("a" => l1, "c" => l3, "b" => l2)
 n2d = Dict("c" => l3, "a" => l1)
 n3d = Dict("c" => l3, "b" => l2)
@@ -14,12 +14,10 @@ n2pv = [3 => l3, 1 => l1]
 n3pv = [3 => l3, 2 => l2]
 n4pv = [2 => l2]
 n5pv = Pair[]
-
 n1v = [l1, l2, l3]
 n2v = BinaryVertex(2, l1, l3)
 n3v = [l2]
 n4v = []
-
 n1t = (l1, l2, l3)
 n2t = (l1, l3)
 n3t = SingletonVertex(2, l2)
@@ -168,6 +166,63 @@ end
         @test _children_pairs((n, nothing), true) == res
         @test _children_pairs((n, n4t), true) == res
     end
+end
+
+@testset "Different types of children" begin
+    for chs in [
+                [Dict(), (;), (), []],
+                [Leaf(1), NTVertex(2, (;)), SingletonVertex(3, nothing), VectorVertex(4, [])]
+               ]
+        for (ch1, ch2, ch3, ch4) in permutations(chs)
+            n1 = NTVertex(1, (a=ch1, b=ch2))
+            n2 = (a=ch3, b=ch4)
+            @test _children_pairs((n1, n2), true) == (a=(ch1, ch3), b=(ch2, ch4))
+
+            n1 = Dict(:a => ch1, :b => ch2)
+            n2 = Dict(:a => ch3, :b => ch4)
+            @test _children_pairs((n1, n2), true) == Dict(:a => (ch1, ch3), :b => (ch2, ch4))
+
+            n1 = BinaryVertex(1, ch1, ch2)
+            n2 = [ch3, ch4]
+            @test _children_pairs((n1, n2), true) == [(ch1, ch3), (ch2, ch4)]
+
+            n1 = VectorVertex(1, [ch1, ch2])
+            n2 = [1 => ch3, 2 => ch4]
+            @test _children_pairs((n1, n2), true) == [1 => (ch1, ch3), 2 => (ch2, ch4)]
+
+            n1 = (ch1, ch2)
+            n2 = SingletonVertex(1, ch3)
+            n3 = (ch3, ch4)
+            @test _children_pairs((n1, n2), true) == ((ch1, ch3), (ch2, nothing))
+            @test _children_pairs((n1, n3), true) == ((ch1, ch3), (ch2, ch4))
+        end
+    end
+end
+
+@testset "Different types of children iterables" begin
+    for chs in [
+                [Dict(), (;), ()],
+                [Leaf(1), NTVertex(2, (;)), VectorVertex(4, [])]
+               ]
+        for (ch1, ch2, ch3) in permutations(chs)
+            n1 = (a=ch1,)
+            n2 = Dict(:a => ch2)
+            n3 = [:a => ch3]
+            @test _children_pairs((n1, n2, n3), true) == [:a => (ch1, ch2, ch3)]
+
+            n1 = (ch1,)
+            n2 = [ch2]
+            @test _children_pairs((n1, n2), true) == [(ch1, ch2)]
+        end
+    end
+end
+
+@testset "Different types keys" begin
+    n1 = (a=l1, b=l2)
+    n2 = Dict("a" => l1, "b" => l2)
+    n3 = [1 => l1, 2 => l2]
+    @test _children_pairs((n1, n2, n3), false) == []
+    @test_throws MethodError _children_pairs((n1, n2, n3), true)
 end
 
 @testset "Incompatible types" begin
