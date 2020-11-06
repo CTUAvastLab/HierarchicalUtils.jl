@@ -12,7 +12,7 @@ _printkeys(ch::Union{NamedTuple, Dict, OrderedDict}) = ["$k: " for k in keys(ch)
 _printkeys(ch::PairVec) = ["$k: " for (k,v) in ch]
 
 function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
-    c = isa(NodeType(n), LeafNode) ? :white : C[1+d%length(C)]
+    c = isa(NodeType(n), LeafNode) ? :default : C[1+d%length(C)]
     nr = noderepr(n)
     gap = " " ^ clamp(length(nr)-1, 0, 2)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
