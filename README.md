@@ -14,7 +14,7 @@ Basics: [Expression tree representation](https://github.com/Sheemon7/Hierarchica
 Advanced applications: [BSON representation visualization](https://github.com/Sheemon7/HierarchicalUtils.jl/blob/master/examples/visualizations.ipynb), 
 [Integration with Mill.jl](https://github.com/Sheemon7/HierarchicalUtils.jl/blob/master/examples/mill_integration.ipynb)
 
-## Packages using `HierarchicalUtils.jl`
+## Examples of packages using `HierarchicalUtils.jl`
 
 * [`Mill.jl`](https://github.com/pevnak/Mill.jl)
 * [`JsonGrinder.jl`](https://github.com/pevnak/JsonGrinder.jl)
