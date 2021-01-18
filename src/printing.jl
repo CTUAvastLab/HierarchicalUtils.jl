@@ -23,9 +23,9 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
 
     function _printchild(i, ch, pk, l)
         println(io)
-        line = (i == nch ? "└" : "├") * "─" ^ (2 + l-length(pk))
-        paddedprint(io, gap * line * " " * pk, color=c, pad=p)
-        ns = gap * (i == nch ? ' ' : '│') * " " ^ (3+l)
+        line = (i == nch ? '└' : '├') * '─' ^ (2 + l-length(pk))
+        paddedprint(io, gap * line * ' ' * pk, color=c, pad=p)
+        ns = gap * (i == nch ? ' ' : '│') * ' ' ^ (3+l)
         _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, htrunc, vtrunc)
     end
 
@@ -45,8 +45,7 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
             end
 
             println(io)
-            line = "│" * " " ^ l
-            paddedprint(io, gap * line * " ⋮" , color=c, pad=p)
+            paddedprint(io, gap * '⋮' , color=c, pad=p)
 
             for (i, (ch, pk)) in coll[int2]
                 _printchild(i, ch, pk, l)
