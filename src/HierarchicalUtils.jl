@@ -43,7 +43,7 @@ include("statistics.jl")
 export nnodes, nleafs, treeheight
 
 include("traversal_encoding.jl")
-export encode_traversal, walk, list_traversal, findin
+export encode_traversal, walk, list_traversal, findin_trav
 
 include("printing.jl")
 export printtree
