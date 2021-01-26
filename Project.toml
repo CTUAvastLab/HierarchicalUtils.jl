@@ -1,7 +1,7 @@
 name = "HierarchicalUtils"
 uuid = "f9ccea15-0695-44b9-8113-df7c26ae4fa9"
 authors = ["Simon Mandlik <simon.mandlik@gmail.com>"]
-version = "1.4.1"
+version = "1.5"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
