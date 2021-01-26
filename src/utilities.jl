@@ -13,12 +13,10 @@ _iter(x) = values(x)
 _isnothing_iter(x) = isnothing.(_iter(x))
 
 function _ith_child(m::Union{Tuple, Vector, NamedTuple}, i::Integer)
-    1 ≤ i ≤ length(m) || @error "Invalid index!"
     return m[i]
 end
 _ith_child(m::OrderedDict, i::Integer) = _ith_child(collect(m), i)
 function _ith_child(m::PairVec, i::Integer)
-    1 ≤ i ≤ length(m)  || @error "Invalid index!"
     return last(m[i])
 end
 
