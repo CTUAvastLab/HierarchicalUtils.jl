@@ -70,28 +70,15 @@ function _encode_traversal(t, idxs...)
     return encode(idxs[1], nchildren(t)) * _encode_traversal(n, idxs[2:end]...)
 end
 
-list_traversal(n::T, s::String="") where T = _list_traversal(NodeType(T), n, s)
+pred_traversal(n::T, p::Function, s::String="") where T = _pred_traversal(NodeType(T), n, p, s)
 
-_list_traversal(::LeafNode, n, s::String="") = [stringify(s)]
-# function _list_traversal(::Union{InnerNode, SingletonNode}, m, s::String="")
-function _list_traversal(::InnerNode, m, s::String="")
-    d = printchildren(m)
-    n = length(d)
-    vcat(stringify(s), [list_traversal(_ith_child(d, i), s * encode(i, n)) for i in 1:n]...)
+_pred_traversal(::LeafNode, n, p, s="") = p(n) ? [stringify(s)] : String[]
+function _pred_traversal(::InnerNode, n, p, s="")
+    d = printchildren(n)
+    l = length(d)
+    res = vcat([pred_traversal(_ith_child(d, i), p, s * encode(i, l)) for i in 1:l]...)
+    p(n) ? vcat(stringify(s), res) : res
 end 
 
-function find_traversal(n, t)
-    res = String[]
-    _find_traversal!(n, t, "", res)
-    stringify.(res)
-end
-
-function _find_traversal!(n, t, c, res)
-    if n === t
-        push!(res, c)
-    end
-    chs = printchildren(t)
-    foreach((i, ch) -> _find_traversal!(n, ch, c * encode(i, length(chs)), res),
-        1:length(chs), _iter(chs))
-end
-
+list_traversal(n) = pred_traversal(n, t -> true)
+find_traversal(n, x) = pred_traversal(n, t -> x === t)
