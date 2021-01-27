@@ -80,18 +80,18 @@ function _list_traversal(::InnerNode, m, s::String="")
     vcat(stringify(s), [list_traversal(_ith_child(d, i), s * encode(i, n)) for i in 1:n]...)
 end 
 
-function findin_trav(n, t)
+function find_traversal(n, t)
     res = String[]
-    _findin_trav!(n, t, "", res)
+    _find_traversal!(n, t, "", res)
     stringify.(res)
 end
 
-function _findin_trav!(n, t, c, res)
+function _find_traversal!(n, t, c, res)
     if n === t
         push!(res, c)
     end
     chs = printchildren(t)
-    foreach((i, ch) -> _findin_trav!(n, ch, c * encode(i, length(chs)), res),
+    foreach((i, ch) -> _find_traversal!(n, ch, c * encode(i, length(chs)), res),
         1:length(chs), _iter(chs))
 end
 

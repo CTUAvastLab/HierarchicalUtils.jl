@@ -5,9 +5,9 @@
     end
 end
 
-@testset "findin" for t in TEST_TREES
+@testset "find_traversal" for t in TEST_TREES
     for l in list_traversal(t)
-        res = findin(walk(t, l), t)
+        res = find_traversal(walk(t, l), t)
         @test all(c -> walk(t, c) === walk(t, l), res)
     end
 end
