@@ -5,7 +5,7 @@ macro hierarchical_dict()
                    NodeType(::Type{<:Dict}) = InnerNode()
                    children(d::Dict) = d
                    noderepr(d::Dict) = isempty(d) ? "Empty Dict" : "Dict of"
-                   return
+                   nothing
                end
               )
 end
@@ -17,7 +17,7 @@ macro hierarchical_vector()
                    NodeType(::Type{<:Vector}) = InnerNode()
                    children(v::Vector) = v
                    noderepr(v::Vector) = isempty(v) ? "[]" : "Vector of"
-                   return
+                   nothing
                end
               )
 end
@@ -29,7 +29,7 @@ macro hierarchical_tuple()
                    NodeType(::Type{<:Tuple}) = InnerNode()
                    children(v::Tuple) = v
                    noderepr(v::Tuple) = isempty(v) ? "()" : "Tuple of"
-                   return
+                   nothing
                end
               )
 end
@@ -41,7 +41,7 @@ macro hierarchical_namedtuple()
                    NodeType(::Type{<:NamedTuple}) = InnerNode()
                    children(v::NamedTuple) = v
                    noderepr(v::NamedTuple) = isempty(v) ? "()" : "NamedTuple of"
-                   return
+                   nothing
                end
               )
 end
@@ -53,7 +53,7 @@ macro hierarchical_pairvector()
                    NodeType(::Type{<:HierarchicalUtils.PairVec}) = InnerNode()
                    children(v::HierarchicalUtils.PairVec) = v
                    noderepr(v::HierarchicalUtils.PairVec) = isempty(v) ? "Empty Vector" : "Vector of pairs of"
-                   return
+                   nothing
                end
               )
 end
@@ -68,7 +68,7 @@ macro primitives()
                    NodeType(::Type{Symbol}) = LeafNode()
                    NodeType(::Type{Missing}) = LeafNode()
                    NodeType(::Type{Nothing}) = LeafNode()
-                   return
+                   nothing
                end
               )
 end
