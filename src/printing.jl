@@ -60,8 +60,9 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
 end
 
 printtree(n; kwargs...) = printtree(stdout, n; kwargs...)
-function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf)
+function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf, breakline::Bool=true)
     @assert htrunc ≥ 0 "htrunc must be ≥ 0"
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
     _printtree(io, n, COLORS, 0, [], "", trav, htrunc, vtrunc)
+    breakline && println(io)
 end

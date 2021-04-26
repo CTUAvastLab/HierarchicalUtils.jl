@@ -36,12 +36,13 @@ end
     @test all([t1, t2, t3]) do t
         buf = IOBuffer()
         printtree(buf, t)
-        String(take!(buf)) ===
+        String(take!(buf)) ==
         """
-Dict of
-  ├── a: Leaf (1)
-  ├── b: Leaf (2)
-  └── c: Leaf (3)"""
+        Dict of
+          ├── a: Leaf (1)
+          ├── b: Leaf (2)
+          └── c: Leaf (3)
+        """
     end
 end
 
@@ -49,24 +50,26 @@ end
     t = COMPLETE_BINARY_TREE_1
     buf = IOBuffer()
     printtree(buf, t)
-    @test String(take!(buf)) ===
+    @test String(take!(buf)) ==
         """
-BinaryVertex (1)
-  ├── BinaryVertex (2)
-  │     ├── Leaf (4)
-  │     └── Leaf (5)
-  └── BinaryVertex (3)
-        ├── Leaf (6)
-        └── Leaf (7)"""
+        BinaryVertex (1)
+          ├── BinaryVertex (2)
+          │     ├── Leaf (4)
+          │     └── Leaf (5)
+          └── BinaryVertex (3)
+                ├── Leaf (6)
+                └── Leaf (7)
+        """
     buf = IOBuffer()
     printtree(buf, t; trav=true)
-    @test String(take!(buf)) ===
+    @test String(take!(buf)) ==
         """
-BinaryVertex (1) [""]
-  ├── BinaryVertex (2) ["E"]
-  │     ├── Leaf (4) ["I"]
-  │     └── Leaf (5) ["M"]
-  └── BinaryVertex (3) ["U"]
-        ├── Leaf (6) ["Y"]
-        └── Leaf (7) ["c"]"""
+        BinaryVertex (1) [""]
+          ├── BinaryVertex (2) ["E"]
+          │     ├── Leaf (4) ["I"]
+          │     └── Leaf (5) ["M"]
+          └── BinaryVertex (3) ["U"]
+                ├── Leaf (6) ["Y"]
+                └── Leaf (7) ["c"]
+        """
 end
