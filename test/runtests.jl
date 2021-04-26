@@ -65,14 +65,14 @@ children(t::BinaryVertex) = [t.ch1, t.ch2]
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
-noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
-Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
+noderepr(t::T) where T <: AbstractVertex = string(Base.nameof(T)) * " ($(t.n))"
+Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.nameof(T))($(t.n))")
 
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
-noderepr(t::T) where T <: AbstractVertex = string(Base.typename(T)) * " ($(t.n))"
-Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.typename(T))($(t.n))")
+noderepr(t::T) where T <: AbstractVertex = string(Base.nameof(T)) * " ($(t.n))"
+Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.nameof(T))($(t.n))")
 
 const SINGLE_NODE_1 = NTVertex(1, NamedTuple())
 const SINGLE_NODE_2 = Dict()
