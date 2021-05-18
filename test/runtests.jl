@@ -162,7 +162,7 @@ const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
 for test_f in readdir(".")
     (endswith(test_f, ".jl") && test_f != "runtests.jl") || continue
-    @testset "$test_f" begin
+    @testset verbose = true "$test_f" begin
         include(test_f)
     end
 end
