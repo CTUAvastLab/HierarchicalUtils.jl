@@ -1,6 +1,7 @@
 const COLORS = [:blue, :red, :green, :yellow, :cyan, :magenta]
 
 function paddedprint(io, s...; color=:default, pad=[])
+    @nospecialize
     for (c, p) in pad
         printstyled(io, p, color=c)
     end
@@ -12,6 +13,7 @@ _printkeys(ch::Union{NamedTuple, Dict, OrderedDict}) = ["$k: " for k in keys(ch)
 _printkeys(ch::PairVec) = ["$k: " for (k,v) in ch]
 
 function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
+    @nospecialize
     c = isa(NodeType(n), LeafNode) ? :default : C[1+d%length(C)]
     nr = noderepr(n)
     gap = " " ^ clamp(length(nr)-1, 0, 2)
@@ -61,6 +63,7 @@ end
 
 printtree(n; kwargs...) = printtree(stdout, n; kwargs...)
 function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf, breakline::Bool=true)
+    @nospecialize
     @assert htrunc ≥ 0 "htrunc must be ≥ 0"
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
     _printtree(io, n, COLORS, 0, [], "", trav, htrunc, vtrunc)
