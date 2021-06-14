@@ -10,14 +10,14 @@ end
 # TODO finish preorder, think about how both maps should behave in case of complete traversals
 # maybe annotate about named tuples? With traits?
 #
-# select_keys(x, y) = @error "Inconsistent types of children of mapped vertex and original vertices"
+# select_keys(x, y) = error("Inconsistent types of children of mapped vertex and original vertices")
 # select_keys(x::Tuple, y::Tuple) = x[eachindex(y)]
 # function select_keys(x::NamedTuple, y::NamedTuple)
 #     NamedTuple{keys(y)}(tuple((x[k] for k in keys(y))...))
 # end
 
 function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
-    @error "Treemaps using PreOrder() are not supported yet"
+    error("Treemaps using PreOrder() are not supported yet")
 end
 
 # function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
@@ -37,7 +37,7 @@ function _treemap(f::Function, ts::Tuple, complete::Bool, order::PostOrder)
 end
 
 function _treemap(f::Function, ts::Tuple, complete::Bool, order::LevelOrder)
-    @error "Treemaps using LevelOrder() are not supported yet"
+    error("Treemaps using LevelOrder() are not supported yet")
 end
 
 function treemap!(f::Function, ts...; complete::Bool=false, order::AbstractOrder=PostOrder())
