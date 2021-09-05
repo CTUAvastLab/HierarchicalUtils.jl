@@ -2,10 +2,10 @@ macro hierarchical_dict()
     return esc(
                quote
                    @nospecialize
-                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   import HierarchicalUtils: NodeType, InnerNode, nodeshow, children
                    NodeType(::Type{<:Dict}) = InnerNode()
                    children(d::Dict) = d
-                   noderepr(d::Dict) = isempty(d) ? "Empty Dict" : "Dict of"
+                   nodeshow(io::IO, d::Dict) = print(io, isempty(d) ? "Empty Dict" : "Dict of")
                    @specialize
                    nothing
                end
@@ -16,10 +16,10 @@ macro hierarchical_vector()
     return esc(
                quote
                    @nospecialize
-                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   import HierarchicalUtils: NodeType, InnerNode, nodeshow, children
                    NodeType(::Type{<:Vector}) = InnerNode()
                    children(v::Vector) = v
-                   noderepr(v::Vector) = isempty(v) ? "[]" : "Vector of"
+                   nodeshow(io::IO, v::Vector) = print(io, isempty(v) ? "[]" : "Vector of")
                    @specialize
                    nothing
                end
@@ -30,10 +30,10 @@ macro hierarchical_tuple()
     return esc(
                quote
                    @nospecialize
-                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   import HierarchicalUtils: NodeType, InnerNode, nodeshow, children
                    NodeType(::Type{<:Tuple}) = InnerNode()
                    children(v::Tuple) = v
-                   noderepr(v::Tuple) = isempty(v) ? "()" : "Tuple of"
+                   nodeshow(io::IO, v::Tuple) = print(io, isempty(v) ? "()" : "Tuple of")
                    @specialize
                    nothing
                end
@@ -44,10 +44,10 @@ macro hierarchical_namedtuple()
     return esc(
                quote
                    @nospecialize
-                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   import HierarchicalUtils: NodeType, InnerNode, nodeshow, children
                    NodeType(::Type{<:NamedTuple}) = InnerNode()
                    children(v::NamedTuple) = v
-                   noderepr(v::NamedTuple) = isempty(v) ? "()" : "NamedTuple of"
+                   nodeshow(io::IO, v::NamedTuple) = print(io, isempty(v) ? "()" : "NamedTuple of")
                    @specialize
                    nothing
                end
@@ -58,10 +58,12 @@ macro hierarchical_pairvector()
     return esc(
                quote
                    @nospecialize
-                   import HierarchicalUtils: NodeType, InnerNode, noderepr, children
+                   import HierarchicalUtils: NodeType, InnerNode, nodeshow, children
                    NodeType(::Type{<:HierarchicalUtils.PairVec}) = InnerNode()
                    children(v::HierarchicalUtils.PairVec) = v
-                   noderepr(v::HierarchicalUtils.PairVec) = isempty(v) ? "Empty Vector" : "Vector of pairs of"
+                   function nodeshow(io::IO, v::HierarchicalUtils.PairVec)
+                       print(io, isempty(v) ? "Empty Vector" : "Vector of pairs of")
+                   end
                    @specialize
                    nothing
                end

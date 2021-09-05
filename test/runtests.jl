@@ -48,7 +48,7 @@ HierarchicalUtils.@hierarchical_pairvector
 # named tuple as children
 HierarchicalUtils.@hierarchical_namedtuple
 
-import HierarchicalUtils: NodeType, noderepr, children
+import HierarchicalUtils: NodeType, nodeshow, nodecommshow, children
 
 NodeType(::Type{Leaf}) = HierarchicalUtils.LeafNode()
 
@@ -65,14 +65,11 @@ children(t::BinaryVertex) = [t.ch1, t.ch2]
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
-noderepr(t::T) where T <: AbstractVertex = string(Base.nameof(T)) * " ($(t.n))"
-Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.nameof(T))($(t.n))")
-
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
-noderepr(t::T) where T <: AbstractVertex = string(Base.nameof(T)) * " ($(t.n))"
-Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, "$(Base.nameof(T))($(t.n))")
+Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, Base.nameof(T), " (", t.n, ")")
+nodecommshow(io::IO, t::T) where T <: AbstractVertex = print(io, "comm")
 
 const SINGLE_NODE_1 = NTVertex(1, NamedTuple())
 const SINGLE_NODE_2 = Dict()
@@ -162,7 +159,7 @@ const ORDERS = [PreOrder(), PostOrder(), LevelOrder()]
 
 for test_f in readdir(".")
     (endswith(test_f, ".jl") && test_f != "runtests.jl") || continue
-    @testset verbose = true "$test_f" begin
+    @testset "$test_f" begin
         include(test_f)
     end
 end

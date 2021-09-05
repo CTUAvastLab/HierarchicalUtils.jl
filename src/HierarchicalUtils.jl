@@ -26,7 +26,8 @@ printchildren(n) = _childsort(children(n))
 # TODO incorporate setfield
 # set_children(n::T, chs::U) where {T, U} = error("Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps")
 
-noderepr(x) = repr(x)
+nodeshow(io, x) = Base.show(io, x)
+nodecommshow(io, x) = print(io)
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
@@ -35,7 +36,7 @@ nprintchildren(n) = nchildren(n)
 
 export NodeType, LeafNode, InnerNode
 export children, nchildren, isleaf
-export noderepr, printchildren
+export nodeshow, nodecommshow, printchildren
 
 include("utilities.jl")
 

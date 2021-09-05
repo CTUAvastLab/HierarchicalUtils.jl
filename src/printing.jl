@@ -15,13 +15,17 @@ _printkeys(ch::PairVec) = ["$k: " for (k,v) in ch]
 function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
     @nospecialize
     c = isa(NodeType(n), LeafNode) ? :default : C[1+d%length(C)]
-    nr = noderepr(n)
-    gap = " " ^ clamp(length(nr)-1, 0, 2)
+    nr = sprint(nodeshow, n, context=io)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
+    nc = sprint(nodecommshow, n, context=io)
+    paddedprint(io, isempty(nc) ? "" : " ", nc, color=:light_black)
+
     CH = printchildren(n)
     PK = _printkeys(CH)
     CH = _iter(CH)
     nch = length(CH)
+
+    gap = " " ^ clamp(length(nr)-1, 0, 2)
 
     function _printchild(i, ch, pk, l)
         println(io)

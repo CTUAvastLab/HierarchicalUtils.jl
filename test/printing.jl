@@ -34,14 +34,14 @@ end
     t2 = Dict("c" => Leaf(3), "a" => Leaf(1), "b" => Leaf(2))
     t3 = Dict("b" => Leaf(2), "c" => Leaf(3), "a" => Leaf(1))
     @test all([t1, t2, t3]) do t
-        buf = IOBuffer()
-        printtree(buf, t)
-        String(take!(buf)) ==
+        buff = IOBuffer()
+        printtree(buff, t)
+        String(take!(buff)) ==
         """
         Dict of
-          ├── a: Leaf (1)
-          ├── b: Leaf (2)
-          └── c: Leaf (3)
+          ├── a: Leaf (1) comm
+          ├── b: Leaf (2) comm
+          └── c: Leaf (3) comm
         """
     end
 end
@@ -52,24 +52,24 @@ end
     printtree(buf, t)
     @test String(take!(buf)) ==
         """
-        BinaryVertex (1)
-          ├── BinaryVertex (2)
-          │     ├── Leaf (4)
-          │     └── Leaf (5)
-          └── BinaryVertex (3)
-                ├── Leaf (6)
-                └── Leaf (7)
+        BinaryVertex (1) comm
+          ├── BinaryVertex (2) comm
+          │     ├── Leaf (4) comm
+          │     └── Leaf (5) comm
+          └── BinaryVertex (3) comm
+                ├── Leaf (6) comm
+                └── Leaf (7) comm
         """
     buf = IOBuffer()
     printtree(buf, t; trav=true)
     @test String(take!(buf)) ==
         """
-        BinaryVertex (1) [""]
-          ├── BinaryVertex (2) ["E"]
-          │     ├── Leaf (4) ["I"]
-          │     └── Leaf (5) ["M"]
-          └── BinaryVertex (3) ["U"]
-                ├── Leaf (6) ["Y"]
-                └── Leaf (7) ["c"]
+        BinaryVertex (1) [""] comm
+          ├── BinaryVertex (2) ["E"] comm
+          │     ├── Leaf (4) ["I"] comm
+          │     └── Leaf (5) ["M"] comm
+          └── BinaryVertex (3) ["U"] comm
+                ├── Leaf (6) ["Y"] comm
+                └── Leaf (7) ["c"] comm
         """
 end
