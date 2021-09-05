@@ -12,13 +12,15 @@ _printkeys(ch) = ["" for _ in eachindex(ch)]
 _printkeys(ch::Union{NamedTuple, Dict, OrderedDict}) = ["$k: " for k in keys(ch)]
 _printkeys(ch::PairVec) = ["$k: " for (k,v) in ch]
 
-function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
+function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc, comments)
     @nospecialize
     c = isa(NodeType(n), LeafNode) ? :default : C[1+d%length(C)]
     nr = sprint(nodeshow, n, context=io)
     paddedprint(io, nr * (trav ? ' ' * "[\"$(stringify(e))\"]" : ""), color=c)
-    nc = sprint(nodecommshow, n, context=io)
-    paddedprint(io, isempty(nc) ? "" : " ", nc, color=:light_black)
+    if comments
+        nc = sprint(nodecommshow, n, context=io)
+        paddedprint(io, isempty(nc) ? "" : " ", nc, color=:light_black)
+    end
 
     CH = printchildren(n)
     PK = _printkeys(CH)
@@ -32,7 +34,7 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
         line = (i == nch ? '└' : '├') * '─' ^ (2 + l-length(pk))
         paddedprint(io, gap * line * ' ' * pk, color=c, pad=p)
         ns = gap * (i == nch ? ' ' : '│') * ' ' ^ (3+l)
-        _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, htrunc, vtrunc)
+        _printtree(io, ch, C, d+1, [p; (c, ns)], e * encode(i, nch), trav, htrunc, vtrunc, comments)
     end
 
     if nch > 0
@@ -66,10 +68,11 @@ function _printtree(io::IO, n, C, d, p, e, trav, htrunc, vtrunc)
 end
 
 printtree(n; kwargs...) = printtree(stdout, n; kwargs...)
-function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf, breakline::Bool=true)
+function printtree(io::IO, n; trav::Bool=false, htrunc::Real=Inf, vtrunc::Real=Inf,
+                        breakline::Bool=true, comments::Bool=true)
     @nospecialize
     @assert htrunc ≥ 0 "htrunc must be ≥ 0"
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
-    _printtree(io, n, COLORS, 0, [], "", trav, htrunc, vtrunc)
+    _printtree(io, n, COLORS, 0, [], "", trav, htrunc, vtrunc, comments)
     breakline && println(io)
 end
