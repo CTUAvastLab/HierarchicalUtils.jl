@@ -21,7 +21,7 @@ children(::LeafNode, _) = ()
 children(_, ::T) where T =
     error("Define children(n::$T) to return a collection of children (one of allowed types)")
 
-printchildren(n) = _childsort(children(n))
+printchildren(n) = children(n)
 
 # TODO incorporate setfield
 # set_children(n::T, chs::U) where {T, U} = error("Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps")
