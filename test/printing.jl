@@ -29,21 +29,39 @@ end
     @test numlines(buf) == min(l, vtrunc + 1) + 1 # one line for ellipsis ⋮ and one for the header
 end
 
-@testset "printtree labelled children sorted" begin
-    t1 = Dict("a" => Leaf(1), "b" => Leaf(2), "c" => Leaf(3))
-    t2 = Dict("c" => Leaf(3), "a" => Leaf(1), "b" => Leaf(2))
-    t3 = Dict("b" => Leaf(2), "c" => Leaf(3), "a" => Leaf(1))
-    @test all([t1, t2, t3]) do t
-        buff = IOBuffer()
-        printtree(buff, t)
-        String(take!(buff)) ==
+@testset "printtree labelled children not sorted" begin
+    t = NTVertex(0, (; a=Leaf(1), b=Leaf(2), c=Leaf(3)))
+    buff = IOBuffer()
+    printtree(buff, t)
+    @test String(take!(buff)) ==
         """
-        Dict of
+        NTVertex (0) comm
           ├── a: Leaf (1) comm
           ├── b: Leaf (2) comm
           └── c: Leaf (3) comm
         """
-    end
+
+    t = NTVertex(0, (; c=Leaf(3), b=Leaf(2), a=Leaf(1)))
+    buff = IOBuffer()
+    printtree(buff, t)
+    @test String(take!(buff)) ==
+        """
+        NTVertex (0) comm
+          ├── c: Leaf (3) comm
+          ├── b: Leaf (2) comm
+          └── a: Leaf (1) comm
+        """
+
+    t = NTVertex(0, (; b=Leaf(2), c=Leaf(3), a=Leaf(1)))
+    buff = IOBuffer()
+    printtree(buff, t)
+    @test String(take!(buff)) ==
+        """
+        NTVertex (0) comm
+          ├── b: Leaf (2) comm
+          ├── c: Leaf (3) comm
+          └── a: Leaf (1) comm
+        """
 end
 
 @testset "printtree traversal encoding" begin

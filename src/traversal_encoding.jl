@@ -33,21 +33,6 @@ function _walk(::LeafNode, n, c::AbstractString)
     end
 end
 
-# function _walk(::SingletonNode, n, c::AbstractString)
-#     !isempty(c) || return n
-#     i, nc = decode(c, 1)
-#     0 <= i <= 1 || error("Invalid index!")
-#     if i == 0
-#         if Set(nc) ⊆ ['0']
-#             return n
-#         else
-#             error("Invalid index!")
-#         end
-#     end
-#     _walk(_children_sorted(n), nc)
-# end
-
-# function _walk(::Union{SingletonNode, InnerNode}, n, c::AbstractString)
 function _walk(::InnerNode, n, c::AbstractString)
     !isempty(c) || return n
     i, nc = decode(c, nprintchildren(n))

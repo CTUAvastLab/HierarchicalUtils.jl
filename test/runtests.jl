@@ -53,8 +53,7 @@ import HierarchicalUtils: NodeType, nodeshow, nodecommshow, children
 NodeType(::Type{Leaf}) = HierarchicalUtils.LeafNode()
 
 NodeType(::Type{<:VectorVertex}) = HierarchicalUtils.InnerNode()
-# we shuffle each time for the sake of testing
-children(t::VectorVertex) = shuffle([k => ch for (k,ch) in enumerate(t.chs)])
+children(t::VectorVertex) = [k => ch for (k,ch) in enumerate(t.chs)]
 
 NodeType(::Type{<:NTVertex}) = HierarchicalUtils.InnerNode()
 children(t::NTVertex) = t.chs
