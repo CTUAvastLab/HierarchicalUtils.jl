@@ -1,4 +1,5 @@
 fbroadcast(f::Function, a::NamedTuple{K}) where K = NamedTuple{K}(f.(values(a)))
+fbroadcast(f::Function, a::OrderedDict) = OrderedDict(k => f(v) for (k, v) in a)
 fbroadcast(f::Function, a) = f.(a)
 
 treemap(f::Function, t; kwargs...) = treemap((t, chs) -> f(only(t), chs), (t,); kwargs...)

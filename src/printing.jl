@@ -1,5 +1,4 @@
 const COLORS = [:blue, :red, :green, :yellow, :cyan, :magenta]
-
 function paddedprint(io, s...; color=:default, pad=[])
     @nospecialize
     for (c, p) in pad
