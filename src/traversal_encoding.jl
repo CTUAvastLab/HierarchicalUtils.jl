@@ -62,7 +62,7 @@ function _pred_traversal(::InnerNode, n, p, s="")
     d = printchildren(n)
     l = length(d)
     z = Vector{Vector{String}}[pred_traversal(_ith_child(d, i), p, s * encode(i, l)) for i in 1:l]
-    res = reduce(vcat, z)
+    res = vcat(z...)
     p(n) ? vcat(stringify(s), res) : res
 end 
 
