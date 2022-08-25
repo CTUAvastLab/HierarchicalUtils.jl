@@ -131,13 +131,13 @@ end
 
 printtree(n; kwargs...) = printtree(stdout, n; kwargs...)
 function printtree(io::IO, n; trav::Bool=false, htrunc::Number=Inf, vtrunc::Number=Inf,
-                    limit::Bool=get(io, :limit, true), breakline::Bool=true, comments::Bool=true)
+                    limit::Bool=get(io, :limit, false), breakline::Bool=true, comments::Bool=true)
     @nospecialize
     @assert htrunc ≥ 0 "htrunc must be ≥ 0"
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
     H, W = limit ? displaysize(io) : (Inf, Inf)
-    # 3 for "julia>" prompts + 1 for breakline
-    H -= 3 + breakline
+    # for "julia>" prompts and newline
+    H -= 4
     # print at least one node + ellipsis
     H = max(H, 2)
     # print at least three characters before ellipsis
