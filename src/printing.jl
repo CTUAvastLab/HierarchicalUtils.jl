@@ -16,15 +16,20 @@ end
 DisplaySizePrinter(io::IO, W::Number, H::Number) = DisplaySizePrinter(io, W, W, H)
 
 function Base.println(p::DisplaySizePrinter, pad)
-    p.h > 0 || return
-    if p.h ≥ 1
-        println(p.io)
-        p.w = p.W
-    end
+    p.h > 1 || return
+    println(p.io)
+    p.w = p.W
+    p.h -= 1
     if p.h == 1
         print_last(p, pad)
+        p.h -= 1
     end
-    p.h -= 1
+end
+
+function print_last(printer::DisplaySizePrinter, pad; kwargs...)
+    for (c, p) in pad
+        Base.printstyled(printer.io, replace(p, V_LINE => V_ELLIPSIS); color=c)
+    end
 end
 
 function printstyled(p::DisplaySizePrinter, s; kwargs...)
@@ -40,13 +45,6 @@ function printstyled(p::DisplaySizePrinter, s; kwargs...)
     else
         p.w -= length(s)
         Base.printstyled(p.io, s; kwargs...)
-    end
-end
-
-function print_last(printer::DisplaySizePrinter, pad; kwargs...)
-    printer.h -= 1
-    for (c, p) in pad
-        Base.printstyled(printer.io, replace(p, V_LINE => V_ELLIPSIS); color=c)
     end
 end
 
@@ -103,7 +101,7 @@ function _printtree(printer, n, C, d, p, pl, e, trav, htrunc, vtrunc, comments)
         if d+1 >= htrunc || pl + length(gap) + 6 > printer.W
             println(printer, [p; (c, gap * V_LINE)])
             paddedprint(printer, gap * V_ELLIPSIS, color=c, pad=p)
-        elseif nch > vtrunc && vtrunc + 1 < printer.h
+        elseif nch > vtrunc && vtrunc + 2 < printer.h
             l2 = vtrunc < 2 ? 0 : (vtrunc < 4 ? 1 : 2)
             l1 = vtrunc - l2
             int1, int2 = 1:l1, nch-l2+1:nch
@@ -137,7 +135,7 @@ function printtree(io::IO, n; trav::Bool=false, htrunc::Number=Inf, vtrunc::Numb
     @assert vtrunc ≥ 0 "vtrunc must be ≥ 0"
     H, W = limit ? displaysize(io) : (Inf, Inf)
     # for "julia>" prompts and newline
-    H -= 4
+    H -= 3
     # print at least one node + ellipsis
     H = max(H, 2)
     # print at least three characters before ellipsis
