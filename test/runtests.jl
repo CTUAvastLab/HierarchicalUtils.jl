@@ -64,9 +64,6 @@ children(t::BinaryVertex) = [t.ch1, t.ch2]
 NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
 children(t::SingletonVertex) = (t.ch,)
 
-NodeType(::Type{<:SingletonVertex}) = HierarchicalUtils.InnerNode()
-children(t::SingletonVertex) = (t.ch,)
-
 Base.show(io::IO, t::T) where T <: AbstractVertex = print(io, Base.nameof(T), " (", t.n, ")")
 nodecommshow(io::IO, t::T) where T <: AbstractVertex = print(io, "comm")
 

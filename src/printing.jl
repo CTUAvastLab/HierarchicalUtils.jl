@@ -62,14 +62,14 @@ _printkeys(ch::PairVec) = ["$k: " for (k, _) in ch]
 
 function _print_current(printer, n, c, e, trav, comments)
     nr = sprint(nodeshow, n, context=printer.io)
-    if trav
-        nr *= " [\"" * stringify(e) * "\"]"
-    end
     paddedprint(printer, nr, color=c)
+    if trav
+        printstyled(printer, " [\"" * stringify(e) * "\"]")
+    end
     if comments
         nc = sprint(nodecommshow, n, context=printer.io)
         if !isempty(nc)
-            paddedprint(printer, ' ' * nc, color=:light_black)
+            paddedprint(printer, ' ' * nc, color=:light_black, italic=true)
         end
     end
     gap = repeat(' ', clamp(length(nr)-1, 0, 2))
