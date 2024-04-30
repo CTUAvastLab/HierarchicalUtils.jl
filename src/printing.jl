@@ -69,7 +69,11 @@ function _print_current(printer, n, c, e, trav, comments)
     if comments
         nc = sprint(nodecommshow, n, context=printer.io)
         if !isempty(nc)
-            paddedprint(printer, ' ' * nc, color=:light_black, italic=true)
+            @static if VERSION ≥ v"1.10"
+                paddedprint(printer, ' ' * nc, color=:light_black, italic=true)
+            else
+                paddedprint(printer, ' ' * nc, color=:light_black)
+            end
         end
     end
     gap = repeat(' ', clamp(length(nr)-1, 0, 2))
