@@ -3,7 +3,6 @@ HierarchicalUtils.jl is a package providing abstract functionality over hierarch
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/CTUAvastLab/HierarchicalUtils.jl/blob/master/LICENSE)
 [![Build Status](https://github.com/CTUAvastLab/HierarchicalUtils.jl/workflows/CI/badge.svg)](https://github.com/CTUAvastLab/HierarchicalUtils.jl/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/github/CTUAvastLab/HierarchicalUtils.jl/badge.svg?branch=master)](https://coveralls.io/github/CTUAvastLab/HierarchicalUtils.jl?branch=master)
 [![codecov.io](http://codecov.io/github/CTUAvastLab/HierarchicalUtils.jl/coverage.svg?branch=master)](http://codecov.io/github/CTUAvastLab/HierarchicalUtils.jl?branch=master)
 
 ## How it works
