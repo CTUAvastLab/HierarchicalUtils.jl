@@ -27,7 +27,7 @@ printchildren(n) = children(n)
 # set_children(n::T, chs::U) where {T, U} = error("Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps")
 
 nodeshow(io, x) = Base.show(io, x)
-nodecommshow(io, x) = print(io)
+nodecommshow(io, x) = nothing
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0
