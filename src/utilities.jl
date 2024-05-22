@@ -16,6 +16,7 @@ function _ith_child(m::Union{Tuple, Vector, NamedTuple}, i::Integer)
     return m[i]
 end
 _ith_child(m::OrderedDict, i::Integer) = _ith_child(collect(m), i)
+_ith_child(m::AbstractDict, i::Integer) = _ith_child(_childsort(m), i)
 function _ith_child(m::PairVec, i::Integer)
     return last(m[i])
 end
