@@ -3,7 +3,7 @@ using HierarchicalUtils
 using Base.Iterators: product
 using Combinatorics
 using HierarchicalUtils: OrderedDict
-import HierarchicalUtils: _children_pairs, _childsort, _iter
+import HierarchicalUtils: _children_pairs, _impose_order, _iter
 import HierarchicalUtils: _node_predicate, PairVec
 
 using Random; Random.seed!(42)

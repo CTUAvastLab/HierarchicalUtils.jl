@@ -22,7 +22,7 @@ function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
 end
 
 # function _treemap(f::Function, ts::Tuple, complete::Bool, order::PreOrder)
-#     n = f(ts, _children_sorted.(ts))
+#     n = f(ts, _children_ordered.(ts))
 #     isleaf(n) && return n
 #     nchs = children(n)
 #     chs = _children_pairs_keys(ts, complete)

@@ -1,25 +1,17 @@
-_childsort(x::Union{Tuple, Vector, OrderedDict}) = x
-_childsort(x::Dict) = sort!(OrderedDict(x))
-_childsort(x::PairVec) = sort(x, by=first)
-function _childsort(x::NamedTuple{T}) where T
-    ks = tuple(sort(collect(T))...)
-    NamedTuple{ks}(x[k] for k in ks)
-end
-_children_sorted(n) = _childsort(children(n))
+_impose_order(x::Union{Tuple, NamedTuple, Vector, OrderedDict}) = x
+_impose_order(x::AbstractDict) = sort!(OrderedDict(x))
+
+_children_ordered(n) = _impose_order(children(n))
 
 _iter(x::PairVec) = last.(x)
 _iter(x) = values(x)
 
 _isnothing_iter(x) = isnothing.(_iter(x))
 
-function _ith_child(m::Union{Tuple, Vector, NamedTuple}, i::Integer)
-    return m[i]
-end
+_ith_child(m::Union{Tuple, Vector, NamedTuple}, i::Integer) = m[i]
 _ith_child(m::OrderedDict, i::Integer) = _ith_child(collect(m), i)
-_ith_child(m::AbstractDict, i::Integer) = _ith_child(_childsort(m), i)
-function _ith_child(m::PairVec, i::Integer)
-    return last(m[i])
-end
+_ith_child(m::AbstractDict, i::Integer) = _ith_child(_impose_order(m), i)
+_ith_child(m::PairVec, i::Integer) = last(m[i])
 
 _indexed(::Union{Vector, Tuple}) = true
 _indexed(_) = false
@@ -27,8 +19,8 @@ _named(::Union{NamedTuple, Dict, OrderedDict, PairVec}) = true
 _named(_) = false
 
 function _children_pairs(ts, complete::Bool)
-    chss1 = [_children_sorted(t) for t in ts if !(isnothing(t) || isleaf(t))]
-    chss2 = [isnothing(t) || isleaf(t) ? nothing : _children_sorted(t) for t in ts]
+    chss1 = [_children_ordered(t) for t in ts if !(isnothing(t) || isleaf(t))]
+    chss2 = [isnothing(t) || isleaf(t) ? nothing : _children_ordered(t) for t in ts]
     isempty(chss1) && return chss1
     # type stability here is impossible
     if all(isa.(chss2, PairVec))

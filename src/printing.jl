@@ -57,7 +57,7 @@ function paddedprint(io, s; pad=[], color=:default, kwargs...)
 end
 
 _printkeys(ch) = ["" for _ in eachindex(ch)]
-_printkeys(ch::Union{NamedTuple, Dict, OrderedDict}) = ["$k: " for k in keys(ch)]
+_printkeys(ch::Union{NamedTuple, AbstractDict}) = ["$k: " for k in keys(ch)]
 _printkeys(ch::PairVec) = ["$k: " for (k, _) in ch]
 
 function _print_current(printer, n, c, e, trav, comments)
@@ -87,7 +87,7 @@ function _printtree(printer, n, C, d, p, pl, e, trav, htrunc, vtrunc, comments)
     c = isa(NodeType(n), LeafNode) ? :default : C[1 + d % length(C)]
     gap = _print_current(printer, n, c, e, trav, comments)
 
-    CH = printchildren(n)
+    CH = _impose_order(printchildren(n))
     PK = _printkeys(CH)
     CH = _iter(CH)
     nch = length(CH)

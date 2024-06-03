@@ -10,7 +10,7 @@ struct InnerNode <: NodeType end
 const PairVec = Vector{<:Pair}
 
 NodeType(::Type{T}) where T = error("Define NodeType(::Type{$T}) to be either LeafNode() or InnerNode()")
-NodeType(x::T) where T = NodeType(T)
+NodeType(::T) where T = NodeType(T)
 
 isleaf(n) = isleaf(NodeType(n), n)
 isleaf(::LeafNode, _) = true
@@ -23,11 +23,8 @@ children(_, ::T) where T =
 
 printchildren(n) = children(n)
 
-# TODO incorporate setfield
-# set_children(n::T, chs::U) where {T, U} = error("Define set_children(n::$T, chs::$U) where chs are new children to use PreOrder maps")
-
 nodeshow(io, x) = Base.show(io, x)
-nodecommshow(io, x) = nothing
+nodecommshow(_, _) = nothing
 
 nchildren(n) = nchildren(NodeType(n), n)
 nchildren(::LeafNode, n) = 0

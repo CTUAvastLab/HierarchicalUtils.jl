@@ -126,7 +126,7 @@ end
 #     return r, s
 # end
 
-# expand(n, s) = append!(s, reverse(collect(_children_sorted(n))))
+# expand(n, s) = append!(s, reverse(collect(_children_ordered(n))))
 
 # function nextstate(it, s)
 #     isempty(s) && return nothing

@@ -44,9 +44,11 @@ n4t = ()
         @test _children_pairs((n, n5nt, nothing), false) == NamedTuple()
         @test _children_pairs((n, nothing), false) == NamedTuple()
         @test _children_pairs((n, n5nt), false) == NamedTuple()
-        res = (; (Symbol(k) => (ch, nothing, nothing) for (k,ch) in _childsort(children(n)) |> pairs)...)
+        chs = children(n)
+        ks = sort(collect(keys(chs)))
+        res = (; (Symbol(k) => (chs[k], nothing, nothing) for k in ks)...)
         @test _children_pairs((n, n5nt, nothing), true) == res
-        res = (; (Symbol(k) => (ch, nothing) for (k,ch) in _childsort(children(n)) |> pairs)...)
+        res = (; (Symbol(k) => (chs[k], nothing) for k in ks)...)
         @test _children_pairs((n, nothing), true) == res
         @test _children_pairs((n, n5nt), true) == res
     end
@@ -103,9 +105,12 @@ end
         @test _children_pairs((n, n5pv, nothing), false) == []
         @test _children_pairs((n, nothing), false) == []
         @test _children_pairs((n, n5pv), false) == []
-        res = [k => (ch, nothing, nothing) for (k,ch) in _childsort(children(n))]
+        chs = children(n)
+        ks = sort(first.(chs))
+        chs = Dict(chs)
+        res = [k => (chs[k], nothing, nothing) for k in ks]
         @test _children_pairs((n, n5pv, nothing), true) == res
-        res = [k => (ch, nothing) for (k,ch) in _childsort(children(n))]
+        res = [k => (chs[k], nothing) for k in ks]
         @test _children_pairs((n, nothing), true) == res
         @test _children_pairs((n, n5pv), true) == res
     end
@@ -138,9 +143,9 @@ end
         @test _children_pairs((n, n4v, nothing), false) == []
         @test _children_pairs((n, nothing), false) == []
         @test _children_pairs((n, n4v), false) == []
-        res = [(ch, nothing, nothing) for ch in _childsort(children(n))]
+        res = [(ch, nothing, nothing) for ch in children(n)]
         @test _children_pairs((n, n4v, nothing), true) == res
-        res = [(ch, nothing) for ch in _childsort(children(n))]
+        res = [(ch, nothing) for ch in children(n)]
         @test _children_pairs((n, nothing), true) == res
         @test _children_pairs((n, n4v), true) == res
     end
@@ -160,9 +165,9 @@ end
         @test _children_pairs((n, n4t, nothing), false) == ()
         @test _children_pairs((n, nothing), false) == ()
         @test _children_pairs((n, n4t), false) == ()
-        res = tuple(((ch, nothing, nothing) for ch in _childsort(children(n)))...)
+        res = tuple(((ch, nothing, nothing) for ch in children(n))...)
         @test _children_pairs((n, n4t, nothing), true) == res
-        res = tuple(((ch, nothing) for ch in _childsort(children(n)))...)
+        res = tuple(((ch, nothing) for ch in children(n))...)
         @test _children_pairs((n, nothing), true) == res
         @test _children_pairs((n, n4t), true) == res
     end
